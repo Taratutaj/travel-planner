@@ -345,7 +345,7 @@
                 resultDiv.innerHTML = '<p class="text-lg text-center opacity-80">Wypełnij formularz powyżej, aby zobaczyć swój plan.</p>';
 
                 // Wywołanie Back-End Flask
-                const backendUrl = 'http://127.0.0.1:5000/generate_plan';
+                const backendUrl = '/generate_plan';
 
                 const response = await fetch(backendUrl, {
                     method: 'POST',
@@ -403,5 +403,6 @@
 
     </script>
 </body>
+
 
 </html>
