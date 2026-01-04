@@ -3,6 +3,10 @@
     {
       "source": "/generate_plan",
       "destination": "/api/index"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/$1"
     }
   ]
 }
