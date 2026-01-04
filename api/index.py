@@ -43,7 +43,7 @@ def generate_plan():
         )
 
         response = client.models.generate_content(
-            model='gemini-2.0-flash', # <--- Tutaj była literówka (2.5)
+            model='gemini-2.5-flash', # <--- Tutaj była literówka (2.5)
             contents=user_prompt,
             config=config,
         )
@@ -70,3 +70,4 @@ def generate_plan():
 # Ten blok zostanie wykonany tylko lokalnie
 if __name__ == '__main__':
     app.run(port=5000)
+
