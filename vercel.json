@@ -1,9 +1,12 @@
 {
   "version": 2,
+  "builds": [
+    { "src": "api/index.py", "use": "@vercel/python" },
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "Travelplan_background.jpg", "use": "@vercel/static" }
+  ],
   "rewrites": [
-    {
-      "source": "/generate_plan",
-      "destination": "/api/index.py"
-    }
+    { "source": "/generate_plan", "destination": "api/index.py" },
+    { "source": "/", "destination": "index.html" }
   ]
 }
