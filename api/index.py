@@ -1,35 +1,27 @@
 import os
-import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from google.genai.errors import APIError
 
-
-
-
-load_dotenv() # To wczyta klucz z pliku .env do systemu
-
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-
 app = Flask(__name__)
-# Używamy CORS, aby umożliwić komunikację między przeglądarką (Front-End) a serwerem (Back-End)
 CORS(app) 
 
-# Inicjalizacja klienta Gemini
-# Klient automatycznie pobierze klucz API ze zmiennej środowiskowej GEMINI_API_KEY
+# Inicjalizacja klienta - Vercel sam pobierze GEMINI_API_KEY z ustawień projektu
 try:
-    client = genai.Client()
+    # Ważne: Vercel automatycznie widzi zmienne środowiskowe, 
+    # nie potrzebujesz load_dotenv() na produkcji.
+    api_key = os.environ.get("GEMINI_API_KEY")
+    client = genai.Client(api_key=api_key)
 except Exception as e:
-    print(f"Błąd inicjalizacji klienta Gemini: {e}")
+    print(f"Błąd inicjalizacji: {e}")
     client = None
 
 @app.route('/generate_plan', methods=['POST'])
 def generate_plan():
     if not client:
-        return jsonify({"error": "Klient Gemini nie został poprawnie zainicjalizowany. Sprawdź GEMINI_API_KEY."}), 500
+        return jsonify({"error": "Brak konfiguracji API Key na Vercel"}), 500
 
     try:
         data = request.json
@@ -37,54 +29,44 @@ def generate_plan():
         days = data.get('days')
 
         if not destination or not days:
-            return jsonify({"error": "Wymagane pola: 'destination' i 'days'."}), 400
+            return jsonify({"error": "Brak danych"}), 400
 
-        # WZMOCNIONY PROMPT Z UŻYCIEM GOOGLE SEARCH
         user_prompt = (
             f"Utwórz szczegółowy, {days}-dniowy plan podróży do {destination}. "
-            f"Uwzględnij logistykę, najlepsze restauracje, atrakcje i wydarzenia, używając aktualnych informacji znalezionych w Google Search. "
-            f"Zapewnij, że informacje o godzinach otwarcia i cenach są, jeśli to możliwe, oparte na aktualnych danych. "
             f"Odpowiedź w języku polskim, w formacie Markdown."
         )
 
-        print(f"Generowanie planu dla: {destination}, {days} dni.")
-
-        # KONSTRUKCJA REQUESTU Z NARZĘDZIEM GOOGLE SEARCH
+        # ZMIANA: Poprawiona nazwa modelu na istniejącą
         config = types.GenerateContentConfig(
-            system_instruction="Jesteś ekspertem ds. podróży i tworzysz wysokiej jakości plany na podstawie aktualnych informacji.",
-            tools=[{"google_search": {}}] # KLUCZOWY ELEMENT: Włączenie Google Search
+            system_instruction="Jesteś ekspertem ds. podróży.",
+            tools=[{"google_search": {}}] 
         )
 
-        # Wywołanie API Gemini
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.0-flash', # <--- Tutaj była literówka (2.5)
             contents=user_prompt,
             config=config,
         )
 
-        # Obsługa i ekstrakcja źródeł (grounding)
         sources = []
-        if response.candidates and response.candidates[0].grounding_metadata and response.candidates[0].grounding_metadata.grounding_chunks:
-            # Mapowanie informacji o źródłach
-            sources = [
-                {"title": chunk.web.title, "uri": chunk.web.uri}
-                for chunk in response.candidates[0].grounding_metadata.grounding_chunks
-                if chunk.web and chunk.web.uri
-            ]
+        if response.candidates and response.candidates[0].grounding_metadata:
+            metadata = response.candidates[0].grounding_metadata
+            if metadata.grounding_chunks:
+                sources = [
+                    {"title": chunk.web.title, "uri": chunk.web.uri}
+                    for chunk in metadata.grounding_chunks
+                    if chunk.web
+                ]
         
-        # Przygotowanie odpowiedzi dla Front-Endu
         return jsonify({
             "plan": response.text,
             "sources": sources
         })
 
-    except APIError as e:
-        print(f"Błąd API Gemini: {e}")
-        return jsonify({"error": f"Błąd w Gemini API: {e}"}), 500
     except Exception as e:
-        print(f"Nieoczekiwany błąd: {e}")
-        return jsonify({"error": f"Wystąpił nieoczekiwany błąd serwera: {e}"}), 500
+        return jsonify({"error": str(e)}), 500
 
+# WAŻNE: Na Vercelu NIE używamy app.run()
+# Ten blok zostanie wykonany tylko lokalnie
 if __name__ == '__main__':
-    # Używamy portu 5000, zgodnie z konfiguracją w HTML/JS
-    app.run(port=5000, debug=True)
+    app.run(port=5000)
