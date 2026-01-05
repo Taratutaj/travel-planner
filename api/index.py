@@ -41,8 +41,21 @@ def generate_plan():
             return jsonify({"error": "Brak danych"}), 400
 
         user_prompt = (
-            f"Utwórz szczegółowy, {days}-dniowy plan podróży do {destination}. "
-            f"Odpowiedź w języku polskim, w formacie Markdown."
+           # f"Utwórz szczegółowy, {days}-dniowy plan podróży do {destination}. "
+           # f"Odpowiedź w języku polskim, w formacie Markdown."
+            f"Działaj jako profesjonalny doradca turystyczny. Utwórz szczegółowy, {days}-dniowy plan podróży do {destination}.\n\n"
+            f"ZASADA SPECJALNA:\n"
+            f"- Jeśli '{destination}' nie jest istniejącym miejscem na Ziemi, do którego można podróżować, odpowiedz krótko i uprzejmie, że nie możesz przygotować takiego planu.\n\n"
+            f"WYMAGANIA DOTYCZĄCE TREŚCI:\n"
+            f"- Każdy dzień podziel na sekcje: Poranek, Popołudnie i Wieczór.\n"
+            f"- Dodaj konkretne rekomendacje lokalnych potraw lub restauracji.\n"
+            f"- Uwzględnij praktyczne wskazówki dotyczące transportu i logistyki.\n"
+            f"- Znajdź balans między głównymi atrakcjami a mniej znanymi miejscami (hidden gems).\n\n"
+            f"FORMATOWANIE (Markdown):\n"
+            f"- Użyj nagłówków '## Dzień X: [Nazwa Motywu Dnia]'.\n"
+            f"- Nazwy kluczowych miejsc pogrubiaj za pomocą **gwiazdek**.\n"
+            f"- Odpowiedź musi być w całości w języku polskim."
+                    
         )
 
         config = types.GenerateContentConfig(
@@ -75,4 +88,5 @@ def generate_plan():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
+
     app.run(port=5000, debug=True)
