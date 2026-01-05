@@ -44,7 +44,7 @@ def generate_plan():
            # f"Utwórz szczegółowy, {days}-dniowy plan podróży do {destination}. "
            # f"Odpowiedź w języku polskim, w formacie Markdown."
 
-            f"Działaj jako profesjonalny doradca turystyczny. Utwórz szczegółowy, {days}-dniowy plan podróży do {destination}.\n\n"
+            f"Działaj jako profesjonalny doradca turystyczny. Utwórz {days}-dniowy plan podróży do {destination}.\n\n"
             f"ZASADA SPECJALNA:\n"
             f"- Jeśli '{destination}' nie jest istniejącym miejscem, odpowiedz krótko, że nie możesz przygotować planu.\n\n"
             f"WYMAGANIA DOTYCZĄCE TREŚCI:\n"
@@ -53,7 +53,6 @@ def generate_plan():
             f"INTERAKTYWNE LINKI DO MAP:\n"
             f"- Każda nazwa atrakcji, zabytku lub restauracji MUSI być linkiem do Google Maps.\n"
             f"- Używaj formatu: [Nazwa Miejsca](https://www.google.com/maps/search/?api=1&query=Nazwa+Miejsca+{destination})\n\n"
-            f"FORMATOWANIE (Markdown):\n"
             f"- Użyj nagłówków '## Dzień X: [Nazwa Motywu]'.\n"
             f"- Odpowiedź musi być w języku polskim."
                     
@@ -91,5 +90,6 @@ def generate_plan():
 if __name__ == '__main__':
 
     app.run(port=5000, debug=True)
+
 
 
