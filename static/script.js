@@ -92,7 +92,7 @@ document.getElementById("planForm").addEventListener("submit", async function (e
       const planContent = data.plan; 
       const sources = data.sources || [];
 
-      // Tutaj parsujemy Markdown - renderer jest już ustawiony globalnie
+      // 1. Generujemy HTML (standardowo)
       const htmlContent = marked.parse(planContent);
       
       let sourcesHtml = "";
@@ -107,16 +107,27 @@ document.getElementById("planForm").addEventListener("submit", async function (e
         });
 
         uniqueSources.forEach((title, uri) => {
-          sourcesHtml += `<li><a href="${uri}" target="_blank" class="text-green-400 hover:underline">${title}</a></li>`;
+          // Tutaj target="_blank" jest wpisany "z palca", więc musi działać
+          sourcesHtml += `<li><a href="${uri}" target="_blank" rel="noopener noreferrer" class="text-green-400 hover:underline">${title}</a></li>`;
         });
         sourcesHtml += "</ul></div>";
       }
 
+      // 2. Wstawiamy treść do kontenera
       resultDiv.innerHTML = `
         <h2 class="text-2xl font-bold mb-4 text-white">${destination} (${days} dni)</h2>
-        <div class="prose prose-invert max-w-none">${htmlContent}</div>
+        <div id="plan-text" class="prose prose-invert max-w-none">${htmlContent}</div>
         ${sourcesHtml}
       `;
+
+      // 3. --- KLUCZOWA POPRAWKA (PEWNY SPOSÓB) ---
+      // Szukamy wszystkich linków wewnątrz właśnie wstawionego planu
+      const planLinks = document.querySelectorAll('#plan-text a');
+      planLinks.forEach(link => {
+          link.setAttribute('target', '_blank');
+          link.setAttribute('rel', 'noopener noreferrer');
+      });
+
     } else {
       resultDiv.innerHTML = `<h2 class="text-red-400">Błąd:</h2><p>${data.error || "Błąd serwera"}</p>`;
     }
