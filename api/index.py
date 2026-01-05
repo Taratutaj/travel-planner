@@ -1,27 +1,36 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from google import genai
 from google.genai import types
-from google.genai.errors import APIError
 
-app = Flask(__name__)
+# ZMIANA: static_folder wskazuje na folder 'static' o jeden poziom wyżej
+# template_folder wskazuje na folder główny (tam gdzie jest index.html)
+app = Flask(__name__, 
+            static_folder='../static', 
+            static_url_path='/static')
 CORS(app) 
 
-# Inicjalizacja klienta - Vercel sam pobierze GEMINI_API_KEY z ustawień projektu
 try:
-    # Ważne: Vercel automatycznie widzi zmienne środowiskowe, 
-    # nie potrzebujesz load_dotenv() na produkcji.
     api_key = os.environ.get("GEMINI_API_KEY")
-    client = genai.Client(api_key=api_key)
+    if api_key:
+        client = genai.Client(api_key=api_key)
+    else:
+        print("BŁĄD: Nie znaleziono klucza GEMINI_API_KEY w zmiennych środowiskowych!")
+        client = None
 except Exception as e:
-    print(f"Błąd inicjalizacji: {e}")
+    print(f"Błąd inicjalizacji klienta: {e}")
     client = None
+
+# Trasa dla strony głównej - szuka index.html w folderze głównym (poziom wyżej niż /api)
+@app.route('/')
+def index():
+    return send_from_directory('..', 'index.html')
 
 @app.route('/generate_plan', methods=['POST'])
 def generate_plan():
     if not client:
-        return jsonify({"error": "Brak konfiguracji API Key na Vercel"}), 500
+        return jsonify({"error": "Brak klucza API"}), 500
 
     try:
         data = request.json
@@ -36,14 +45,13 @@ def generate_plan():
             f"Odpowiedź w języku polskim, w formacie Markdown."
         )
 
-        # ZMIANA: Poprawiona nazwa modelu na istniejącą
         config = types.GenerateContentConfig(
             system_instruction="Jesteś ekspertem ds. podróży.",
             tools=[{"google_search": {}}] 
         )
 
         response = client.models.generate_content(
-            model='gemini-2.5-flash', # <--- Tutaj była literówka (2.5)
+            model='gemini-2.5-flash', 
             contents=user_prompt,
             config=config,
         )
@@ -66,8 +74,5 @@ def generate_plan():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# WAŻNE: Na Vercelu NIE używamy app.run()
-# Ten blok zostanie wykonany tylko lokalnie
 if __name__ == '__main__':
-    app.run(port=5000)
-
+    app.run(port=5000, debug=True)
