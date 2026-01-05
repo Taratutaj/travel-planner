@@ -4,6 +4,13 @@ marked.setOptions({
   gfm: true,
 });
 
+// Konfiguracja otwierania linków w nowym oknie ---
+const renderer = new marked.Renderer();
+renderer.link = function(href, title, text) {
+    // Dodaje target="_blank" do każdego linku wygenerowanego przez AI
+    return `<a href="${href}" title="${title || ''}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+};
+
 // --- LISTA CIEKAWOSTEK ---
 const travelFacts = [
   "Ciekawostka: Wielki Mur Chiński jest tak długi, że można nim okrążyć Ziemię 6 razy!",
@@ -99,7 +106,7 @@ document
       }
 
       if (response.ok) {
-        let planContent = data.plan;
+        let htmlContent = marked.parse(planContent, { renderer: renderer });
         let sources = data.sources || [];
 
         let htmlContent = marked.parse(planContent);
