@@ -43,7 +43,7 @@ def generate_plan():
         user_prompt = (
            # f"Utwórz szczegółowy, {days}-dniowy plan podróży do {destination}. "
            # f"Odpowiedź w języku polskim, w formacie Markdown."
-            f"Działaj jako profesjonalny doradca turystyczny. Utwórz szczegółowy, {days}-dniowy plan podróży do {destination}.\n\n"
+            f"Działaj jako profesjonalny doradca turystyczny. Utwórz {days}-dniowy plan podróży do {destination}.\n\n"
             f"ZASADA SPECJALNA:\n"
             f"- Jeśli '{destination}' nie jest istniejącym miejscem na Ziemi, do którego można podróżować, odpowiedz krótko i uprzejmie, że nie możesz przygotować takiego planu.\n\n"
             f"WYMAGANIA DOTYCZĄCE TREŚCI:\n"
@@ -90,3 +90,4 @@ def generate_plan():
 if __name__ == '__main__':
 
     app.run(port=5000, debug=True)
+
