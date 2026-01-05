@@ -106,10 +106,10 @@ document
       }
 
       if (response.ok) {
-        let htmlContent = marked.parse(planContent, { renderer: renderer });
+        let planContent = data.plan; 
         let sources = data.sources || [];
+        let htmlContent = marked.parse(planContent, { renderer: renderer });
 
-        let htmlContent = marked.parse(planContent);
         let sourcesHtml = "";
 
         if (sources.length > 0) {
