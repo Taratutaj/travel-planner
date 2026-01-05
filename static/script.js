@@ -7,8 +7,11 @@ marked.setOptions({
   gfm: true,
 
 });
-
-
+// Konfiguracja linkow do mapy google
+const renderer = new marked.Renderer();
+renderer.link = function(href, title, text) {
+    return `<a href="${href}" title="${title || ''}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+};
 
 // --- LISTA CIEKAWOSTEK ---
 
@@ -199,65 +202,38 @@ document
 
 
       if (response.ok) {
+        // 1. Pobieramy surowy tekst z odpowiedzi serwera
+        const planContent = data.plan; 
+        const sources = data.sources || [];
 
-        let planContent = data.plan;
-
-        let sources = data.sources || [];
-
-
-
-        let htmlContent = marked.parse(planContent);
-
+        // 2. Zamieniamy Markdown na HTML, przekazując nasz renderer w opcjach
+        const htmlContent = marked.parse(planContent, { renderer: renderer });
+        
         let sourcesHtml = "";
 
-
-
+        // --- SEKCJA ŹRÓDEŁ (Pozostaje bez zmian, bo już masz tam target="_blank") ---
         if (sources.length > 0) {
-
-          sourcesHtml +=
-
-            '<div class="sources-container mt-6 p-4 bg-white/10 rounded-lg">';
-
-          sourcesHtml +=
-
-            '<h4 class="text-sm font-semibold mb-2 text-white">Źródła (Google Search):</h4>';
-
-          sourcesHtml +=
-
-            '<ul class="list-disc list-inside space-y-1 text-sm opacity-80">';
-
-
+          sourcesHtml += '<div class="sources-container mt-6 p-4 bg-white/10 rounded-lg">';
+          sourcesHtml += '<h4 class="text-sm font-semibold mb-2 text-white">Źródła (Google Search):</h4>';
+          sourcesHtml += '<ul class="list-disc list-inside space-y-1 text-sm opacity-80">';
 
           const uniqueSources = new Map();
-
           sources.forEach((source) => {
-
-            if (source.uri) {
-
-              uniqueSources.set(source.uri, source.title || source.uri);
-
-            }
-
+            if (source.uri) uniqueSources.set(source.uri, source.title || source.uri);
           });
-
-
 
           uniqueSources.forEach((title, uri) => {
-
-            sourcesHtml += `<li><a href="${uri}" target="_blank" class="text-green-400 hover:underline transition duration-150">${title}</a></li>`;
-
+            sourcesHtml += `<li><a href="${uri}" target="_blank" class="text-green-400 hover:underline">${title}</a></li>`;
           });
-
-
-
           sourcesHtml += "</ul></div>";
-
         }
 
-
-
-        resultDiv.innerHTML = `<h2 class="text-2xl font-bold mb-4 text-white">${destination} (${days} dni)</h2><div class="prose prose-invert max-w-none">${htmlContent}</div>${sourcesHtml}`;
-
+        // 3. Wyświetlamy wszystko w resultDiv
+        resultDiv.innerHTML = `
+          <h2 class="text-2xl font-bold mb-4 text-white">${destination} (${days} dni)</h2>
+          <div class="prose prose-invert max-w-none">${htmlContent}</div>
+          ${sourcesHtml}
+        `;
       } else {
 
         resultDiv.innerHTML = `<h2 class="text-red-400">Błąd:</h2><p>${
