@@ -65,8 +65,8 @@ DOM.form.addEventListener("submit", async (e) => {
     DOM.destinationInput.classList.remove("border-white/10", "bg-white/5");
 
     DOM.destinationInput.classList.add(
-      "!border-red-500",
-      "!bg-red-500/20", // Czerwone półprzezroczyste tło
+      "border-red-500",
+      "bg-red-500/20", // Czerwone półprzezroczyste tło
       "ring-2",
       "ring-red-500/50",
       "shadow-[0_0_25px_rgba(239,68,68,0.4)]"
