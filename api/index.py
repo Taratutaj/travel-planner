@@ -1,28 +1,50 @@
 import os
+import json
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from google import genai
 from google.genai import types
 
-# ZMIANA: static_folder wskazuje na folder 'static' o jeden poziom wyżej
-# template_folder wskazuje na folder główny (tam gdzie jest index.html)
-app = Flask(__name__, 
-            static_folder='../static', 
-            static_url_path='/static')
-CORS(app) 
+app = Flask(__name__, static_folder='../static', static_url_path='/static')
+CORS(app)
 
-try:
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if api_key:
-        client = genai.Client(api_key=api_key)
-    else:
-        print("BŁĄD: Nie znaleziono klucza GEMINI_API_KEY w zmiennych środowiskowych!")
-        client = None
-except Exception as e:
-    print(f"Błąd inicjalizacji klienta: {e}")
-    client = None
+api_key = os.environ.get("GEMINI_API_KEY")
+client = genai.Client(api_key=api_key) if api_key else None
 
-# Trasa dla strony głównej - szuka index.html w folderze głównym (poziom wyżej niż /api)
+# --- ZMODYFIKOWANY SCHEMAT W PYTHON ---
+RESPONSE_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "itinerary_title": {"type": "STRING"},
+        "country_en": {"type": "STRING"}, # NOWE POLE: Kraj po angielsku dla całego planu
+        "days": {
+            "type": "ARRAY",
+            "items": {
+                "type": "OBJECT",
+                "properties": {
+                    "day_number": {"type": "INTEGER"},
+                    "location": {"type": "STRING"},
+                    "location_en": {"type": "STRING"},
+                    "activities": {
+                        "type": "ARRAY",
+                        "items": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "period": {"type": "STRING"},
+                                "time_range": {"type": "STRING"},
+                                "description": {"type": "STRING"}
+                            },
+                            "required": ["period", "time_range", "description"]
+                        }
+                    }
+                },
+                "required": ["day_number", "location", "location_en", "activities"]
+            }
+        }
+    },
+    "required": ["itinerary_title", "country_en", "days"]
+}
+
 @app.route('/')
 def index():
     return send_from_directory('..', 'index.html')
@@ -37,59 +59,48 @@ def generate_plan():
         destination = data.get('destination')
         days = data.get('days')
 
-        if not destination or not days:
-            return jsonify({"error": "Brak danych"}), 400
-
+        # --- POPRAWIONY PROMPT ---
         user_prompt = (
-           # f"Utwórz szczegółowy, {days}-dniowy plan podróży do {destination}. "
-           # f"Odpowiedź w języku polskim, w formacie Markdown."
-
-            f"Działaj jako profesjonalny doradca turystyczny. Utwórz {days}-dniowy plan podróży do {destination}.\n\n"
-            f"ZASADA SPECJALNA:\n"
-            f"- Jeśli '{destination}' nie jest istniejącym miejscem, odpowiedz krótko, że nie możesz przygotować planu.\n\n"
-            f"WYMAGANIA DOTYCZĄCE TREŚCI:\n"
-            f"- Każdy dzień podziel na: Poranek, Popołudnie i Wieczór.\n"
-            f"- Dodaj rekomendacje jedzenia i wskazówki transportowe.\n\n"
-            f"INTERAKTYWNE LINKI DO MAP:\n"
-            f"- Każda nazwa atrakcji, zabytku lub restauracji MUSI być linkiem do Google Maps.\n"
-            f"- Używaj formatu: [Nazwa Miejsca](https://www.google.com/maps/search/?api=1&query=Nazwa+Miejsca+{destination})\n\n"
-            f"- Użyj nagłówków '## Dzień X: [Nazwa Motywu]'.\n"
-            f"- Odpowiedź musi być w języku polskim."
-                    
-        )
+            f"Przygotuj plan podróży do: {destination} na {days} dni. "
+            f"W polu 'country_en' wpisz {destination} po angielsku. "
+            f"W polu 'location_en' wpisz angielską nazwę atrakcji/miejsca na dany dzień. "
+            f"Reszta opisów ma być po polsku."
+)
 
         config = types.GenerateContentConfig(
-            system_instruction="Jesteś ekspertem ds. podróży.",
-            tools=[{"google_search": {}}] 
+            tools=[{"google_search": {}}],
+            response_mime_type="application/json",
+            response_schema=RESPONSE_SCHEMA,
+            system_instruction="Jesteś ekspertem podróży. Zawsze zwracaj dane w formacie JSON zgodnym ze schematem."
         )
 
         response = client.models.generate_content(
-            model='gemini-2.5-flash', 
+            model='gemini-2.0-flash',
             contents=user_prompt,
-            config=config,
+            config=config
         )
 
         sources = []
         if response.candidates and response.candidates[0].grounding_metadata:
             metadata = response.candidates[0].grounding_metadata
             if metadata.grounding_chunks:
-                sources = [
-                    {"title": chunk.web.title, "uri": chunk.web.uri}
-                    for chunk in metadata.grounding_chunks
-                    if chunk.web
-                ]
-        
+                for chunk in metadata.grounding_chunks:
+                    if chunk.web:
+                        sources.append({
+                            "title": chunk.web.title,
+                            "uri": chunk.web.uri
+                        })
+
+        plan_json = json.loads(response.text)
+
         return jsonify({
-            "plan": response.text,
+            "plan": plan_json,
             "sources": sources
         })
 
     except Exception as e:
+        print(f"Błąd: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-
     app.run(port=5000, debug=True)
-
-
-

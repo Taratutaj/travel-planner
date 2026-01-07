@@ -182,3 +182,29 @@ input[type="number"] {
     padding: 20px;
   }
 }
+
+/* Stylowanie linków wewnątrz wygenerowanego wyniku */
+.prose a,
+.sources-container a {
+  color: #4ade80; /* Kolor zielony (np. Tailwind text-green-400) */
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.prose a:hover,
+.sources-container a:hover {
+  color: #22c55e; /* Ciemniejszy zielony na hover */
+  text-decoration: underline;
+}
+
+/* Dodanie ikony mapy po linku 
+.prose a::after,
+.sources-container a::after {
+  content: "🗺️"; 
+  font-size: 0.9em;
+}
+*/
