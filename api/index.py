@@ -75,7 +75,7 @@ def generate_plan():
         )
 
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-2.5-flash',
             contents=user_prompt,
             config=config
         )
@@ -103,4 +103,5 @@ def generate_plan():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
+
     app.run(port=5000, debug=True)
