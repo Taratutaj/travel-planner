@@ -59,7 +59,7 @@ async function getUnsplashPhoto(query) {
 // --- GŁÓWNY HANDLER ---
 DOM.form.addEventListener("submit", async (e) => {
   e.preventDefault();
-
+/*
   if (!isPlaceSelected) {
     // AGRESYWNY STYL BŁĘDU (Ramka + Tło + Cień + Wstrząs)
     DOM.destinationInput.classList.remove("border-white/10", "bg-white/5");
@@ -86,7 +86,7 @@ DOM.form.addEventListener("submit", async (e) => {
     DOM.destinationInput.focus();
     return;
   }
-
+*/
   const destination = DOM.destinationInput.value;
   const days = DOM.daysInput.value;
 
