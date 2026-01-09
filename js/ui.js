@@ -89,7 +89,7 @@ export const UI = {
       html += `
         <div class="day-wrapper mb-16 text-left">
           <div class="flex items-center mb-6">
-            <div class="bg-green-500 text-black font-black px-4 py-1 rounded-full text-sm mr-4 uppercase">
+            <div class="bg-green-500 text-black font-black px-4 py-1 rounded-full text-xs mr-4 uppercase">
               Dzień ${day.day_number}
             </div>
             <h3 class="text-2xl font-bold text-white">${day.location}</h3>
