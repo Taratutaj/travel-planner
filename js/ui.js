@@ -132,7 +132,7 @@ export const UI = {
                       ${act.time_range}
                     </div>
                   </div>
-                  <div class="col-span-3 text-gray-200 leading-relaxed text-lg italic-markdown">
+                  <div class="col-span-3 text-gray-200 leading-relaxed text-base md:text-lg italic-markdown">
                     ${marked.parse(act.description)}
                     ${
                       act.maps_url
