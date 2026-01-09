@@ -1,5 +1,22 @@
+/* --- ZMIENNE I KONFIGURACJA --- */
+:root {
+  --primary-green: #4caf50;
+  --dark-green: #2e7d32;
+  --light-green: #81c784;
+  --accent-green: #4ade80;
+  --hover-green: #22c55e;
+
+  --glass-bg: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --overlay-bg: rgba(0, 0, 0, 0.4);
+
+  --font-main: "Inter", sans-serif;
+  --transition-speed: 0.3s;
+}
+
+/* --- RESET I BAZA --- */
 body {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-main);
   margin: 0;
   padding: 0;
   display: flex;
@@ -8,51 +25,35 @@ body {
   min-height: 100vh;
   color: #ffffff;
   overflow-x: hidden;
+  background-image: url("Travelplan_background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
-  /* --- Obraz tła (został użyty plik przesłany przez użytkownika) --- */
-  background-image: url("Travelplan_background.jpg");
   position: relative;
 }
 
-/* Warstwa overlay dla lepszego kontrastu */
+/* Warstwa przyciemniająca tło */
 body::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  inset: 0; /* Zastępuje top/left/right/bottom: 0 */
+  background: var(--overlay-bg);
   z-index: 0;
 }
 
-/* Główny kontener aplikacji */
-.app-container {
-  position: relative;
-  z-index: 10;
-  width: 90%;
-  max-width: 1000px;
-  margin: 20px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* Styl dla przezroczystych kart (glassmorphism) */
+/* --- KOMPONENTY GLASSMORPHISM --- */
 .glass-card {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--glass-bg);
   border-radius: 24px;
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(15px); /* Wsparcie dla Safari */
+  border: 1px solid var(--glass-border);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   padding: 30px;
 }
 
-/* Styl dla inputów i przycisków */
-input[type="text"],
+/* --- FORMULARZ I INPUTY --- */
+input[type="search"],
 input[type="number"] {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -62,21 +63,28 @@ input[type="number"] {
   transition: all 0.2s ease-in-out;
 }
 
+input:focus {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: var(--light-green);
+  outline: none;
+}
+
 #submitButton {
-  background: linear-gradient(145deg, #4caf50, #2e7d32);
+  background: linear-gradient(145deg, var(--primary-green), var(--dark-green));
   color: white;
   padding: 14px 24px;
   border-radius: 12px;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   border: none;
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 #submitButton:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(145deg, #2e7d32, #1b5e20);
+  background: linear-gradient(145deg, var(--dark-green), #1b5e20);
 }
 
 #submitButton:disabled {
@@ -86,22 +94,7 @@ input[type="number"] {
   box-shadow: none;
 }
 
-/* --- STYLY DLA MODALA ŁADOWANIA --- */
-#loadingModal {
-  display: none;
-  /* Domyślnie ukryty */
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  /* Ciemniejsze tło */
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-}
-
+/* --- MODAL ŁADOWANIA --- */
 .loading-content {
   width: 90%;
   max-width: 500px;
@@ -109,84 +102,39 @@ input[type="number"] {
   text-align: center;
 }
 
-/* Animacja obracającego się globusa */
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
 .globe-spin {
   animation: spin 3s linear infinite;
-}
-
-/* Pasek postępu */
-.progress-bar {
-  width: 100%;
-  height: 10px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 5px;
-  margin-top: 20px;
-  overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
   width: 0%;
-  /* Startuje od zera */
-  background: linear-gradient(90deg, #4caf50, #81c784);
+  background: linear-gradient(90deg, var(--primary-green), var(--light-green));
   border-radius: 5px;
   transition: width 10s ease-out;
-  /* Długa płynna animacja */
 }
 
-.travel-fact {
-  margin-top: 20px;
-  font-size: 1.1rem;
-  font-style: italic;
-  opacity: 0.8;
-  min-height: 40px;
-  /* Zapobiega skokom */
-}
-
-/* --- KONIEC STYLÓW DLA MODALA ŁADOWANIA --- */
-
-/* Styl dla sekcji planu (jak wcześniej) */
+/* --- TYPOGRAFIA I WYNIKI --- */
 #result h2 {
   font-size: 2rem;
+  margin-bottom: 2rem;
 }
-
 #result h3 {
   font-size: 1.5rem;
+  margin-top: 0rem;
 }
 
 #result li::before {
   content: "•";
-  color: #81c784;
+  color: var(--light-green);
+  margin-right: 10px;
+  font-weight: bold;
 }
 
-.sources-container a {
-  color: #81c784;
-}
-
-@media (max-width: 768px) {
-  .app-container {
-    width: 95%;
-  }
-
-  .glass-card {
-    padding: 20px;
-  }
-}
-
-/* Stylowanie linków wewnątrz wygenerowanego wyniku */
+/* Stylowanie linków w wynikach */
 .prose a,
 .sources-container a {
-  color: #4ade80; /* Kolor zielony (np. Tailwind text-green-400) */
+  color: var(--accent-green);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease-in-out;
@@ -197,8 +145,29 @@ input[type="number"] {
 
 .prose a:hover,
 .sources-container a:hover {
-  color: #22c55e; /* Ciemniejszy zielony na hover */
+  color: var(--hover-green);
   text-decoration: underline;
+}
+
+/* --- ANIMACJE --- */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- RESPONSYWNOŚĆ --- */
+@media (max-width: 768px) {
+  .glass-card {
+    padding: 20px;
+  }
+
+  #result h2 {
+    font-size: 1.5rem;
+  }
 }
 
 /* Dodanie ikony mapy po linku 
