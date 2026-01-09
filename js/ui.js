@@ -98,6 +98,7 @@ export const UI = {
           <div class="mb-10 w-full h-80 bg-white/5 rounded-2xl border border-white/10 overflow-hidden relative shadow-2xl">
             <img src="${day.imageUrl}" 
                  alt="${day.location}"
+                 referrerpolicy="no-referrer"
                  loading="lazy"
                  class="w-full h-full object-cover transition-opacity duration-700" 
                  onload="this.style.opacity='1'" 
