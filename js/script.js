@@ -58,6 +58,12 @@ UI.elements.form.addEventListener("submit", async (e) => {
     UI.elements.result.innerHTML = `<div class="text-red-400 p-10 text-center font-bold uppercase tracking-widest">${error.message}</div>`;
   } finally {
     UI.hideLoading();
+    if (UI.elements.result) {
+      UI.elements.result.scrollIntoView({ 
+        behavior: "smooth", 
+        block: "start" 
+      });
+    }
   }
 });
 
