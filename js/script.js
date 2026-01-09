@@ -6,6 +6,8 @@ let isPlaceSelected = false;
 // Inicjalizacja Google Autocomplete
 function initAutocomplete() {
   const input = UI.elements.destinationInput;
+  if (!input) return;
+
   const autocomplete = new google.maps.places.Autocomplete(input, {
     types: ["(regions)"],
   });
@@ -13,6 +15,7 @@ function initAutocomplete() {
   input.addEventListener("input", () => {
     isPlaceSelected = false;
   });
+
   autocomplete.addListener("place_changed", () => {
     const place = autocomplete.getPlace();
     if (place?.geometry) {
@@ -22,16 +25,27 @@ function initAutocomplete() {
   });
 }
 
-// Obsługa wysyłania formularza
 UI.elements.form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  const input = UI.elements.destinationInput;
+
   if (!isPlaceSelected) {
-    UI.elements.destinationInput.focus();
+    // 1. Ustawiamy treść błędu (systemowy dymek)
+    input.setCustomValidity("Wybierz miasto z listy");
+
+    // 2. Pokazujemy dymek użytkownikowi
+    input.reportValidity();
+
+    // 3. Czyścimy błąd, gdy tylko użytkownik zacznie znowu pisać
+    input.addEventListener("input", () => input.setCustomValidity(""), {
+      once: true,
+    });
+
     return;
   }
 
-  const destination = UI.elements.destinationInput.value;
+  const destination = input.value;
   const days = UI.elements.daysInput.value;
 
   UI.showLoading();
@@ -41,10 +55,7 @@ UI.elements.form.addEventListener("submit", async (e) => {
     UI.elements.result.innerHTML = UI.renderTimeline(data.plan);
   } catch (error) {
     console.error("Błąd podczas generowania planu:", error);
-    UI.elements.result.innerHTML = `
-      <div class="text-red-400 p-10 text-center font-bold uppercase tracking-widest">
-        ${error.message}
-      </div>`;
+    UI.elements.result.innerHTML = `<div class="text-red-400 p-10 text-center font-bold uppercase tracking-widest">${error.message}</div>`;
   } finally {
     UI.hideLoading();
   }
