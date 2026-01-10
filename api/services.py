@@ -106,6 +106,12 @@ ZASADY GOOGLE MAPS:
 UNSPLASH:
 - location_en musi być konkretne (np. 'Bari Old Town Streets Rome' zamiast 'Bari').
 - Każdy dzień musi mieć UNIKALNE location_en.
+
+LOGISTYKA I CZAS TRWANIA:
+- Każda aktywność musi mieć realistyczny czas trwania.
+- Jeśli aktywność jest czasochłonna (jak całodniowa wycieczka lub długa wędrówka), musi być ona głównym punktem dnia a pozostałe spokojniesze aktywnoci.
+- Uwzględniaj czasy przejazdów między punktami oraz czas na odpoczynek i posiłki.
+- Priorytetem jest REALIZM: plan musi być fizycznie możliwy do wykonania przez przeciętnego turystę.
 """,
     )
 
