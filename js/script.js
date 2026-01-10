@@ -31,10 +31,8 @@ async function checkSharedPlan() {
   const planId = urlParams.get('id');
 
   if (planId) {
-    UI.showLoading();
-    // Ukrywamy formularz, skoro oglądamy gotowy plan
-    if (UI.elements.setupContainer) UI.elements.setupContainer.classList.add('hidden');
-
+   // UI.showLoading();
+  
     try {
       const response = await fetch(`/api/get_plan/${planId}`);
       if (!response.ok) throw new Error("Nie znaleziono planu.");
