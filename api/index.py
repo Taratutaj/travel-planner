@@ -10,12 +10,11 @@ sys.path.append(BASE_DIR)
 
 from services import generate_trip_plan
 
-# 2. Inicjalizacja klienta Supabase z obsługą błędów
+# 2. Inicjalizacja klienta Supabase
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
-# Klient zainicjalizuje się tylko jeśli klucze istnieją (dobre dla stabilności)
-supabase = None
+supabase: Client = None
 if SUPABASE_URL and SUPABASE_KEY:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -34,6 +33,25 @@ def index():
 def send_js(path):
     return send_from_directory(os.path.join(ROOT_DIR, 'js'), path)
 
+# NOWY ENDPOINT: Pobieranie istniejącego planu z bazy danych
+@app.route('/api/get_plan/<plan_id>', methods=['GET'])
+def get_plan(plan_id):
+    if not supabase:
+        return jsonify({"error": "Baza danych nie jest skonfigurowana"}), 500
+    
+    try:
+        # Pobieramy wiersz, gdzie id zgadza się z parametrem w URL
+        response = supabase.table("plans").select("*").eq("id", plan_id).execute()
+        
+        if response.data and len(response.data) > 0:
+            return jsonify(response.data[0])
+        else:
+            return jsonify({"error": "Nie znaleziono planu"}), 404
+    except Exception as e:
+        print(f"Błąd podczas pobierania planu: {e}")
+        return jsonify({"error": "Wystąpił błąd serwera"}), 500
+
+# ISTNIEJĄCY ENDPOINT: Generowanie i zapisywanie nowego planu
 @app.route('/api/generate_plan', methods=['POST'])
 def handle_plan():
     try:
@@ -41,33 +59,28 @@ def handle_plan():
         destination = data.get('destination')
         days = data.get('days')
 
-        # Generujemy plan za pomocą istniejącej funkcji
+        # Generujemy plan (Gemini + Unsplash/Google)
         plan, sources = generate_trip_plan(destination, days)
 
         plan_id = None
-        # 3. Zapis do Supabase jeśli klient jest aktywny
+        # Zapis do Supabase
         if supabase:
             try:
-                # Przygotowujemy dane do zapisu
                 record = {
                     "destination": destination,
                     "plan_data": {"plan": plan, "sources": sources}
                 }
-                # Wstawiamy do tabeli 'plans'
                 insert_result = supabase.table("plans").insert(record).execute()
                 
-                # Pobieramy ID zapisanego planu
-                if len(insert_result.data) > 0:
+                if insert_result.data and len(insert_result.data) > 0:
                     plan_id = insert_result.data[0]['id']
             except Exception as db_err:
                 print(f"Błąd zapisu do bazy: {db_err}")
-                # Kontynuujemy nawet jeśli baza zawiedzie, żeby zwrócić plan użytkownikowi
 
-        # Zwracamy plan oraz id z bazy danych
         return jsonify({
             "plan": plan, 
             "sources": sources,
-            "id": plan_id  # To ID posłuży do udostępniania
+            "id": plan_id  
         })
 
     except Exception as e:
