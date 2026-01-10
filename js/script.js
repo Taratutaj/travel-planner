@@ -44,12 +44,7 @@ async function checkSharedPlan() {
       // Renderujemy plan z bazy (plan_data zawiera 'plan' i 'sources')
       UI.elements.result.innerHTML = UI.renderTimeline(data.plan_data.plan);
       
-      // Dodajemy przycisk "Stwórz własny plan", aby ułatwić powrót
-      const backBtn = document.createElement('button');
-      backBtn.innerText = "Stwórz własny plan";
-      backBtn.className = "mt-6 bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-full transition mx-auto block";
-      backBtn.onclick = () => window.location.href = window.location.origin;
-      UI.elements.result.appendChild(backBtn);
+      
 
     } catch (error) {
       console.error("Błąd pobierania planu:", error);
