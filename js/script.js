@@ -3,7 +3,7 @@ import { fetchTripPlan } from "./api.js";
 
 let isPlaceSelected = false;
 
-// Inicjalizacja Google Autocomplete
+// --- FUNKCJA 1: Inicjalizacja Autocomplete ---
 function initAutocomplete() {
   const input = UI.elements.destinationInput;
   if (!input) return;
@@ -25,23 +25,72 @@ function initAutocomplete() {
   });
 }
 
+// --- FUNKCJA 2: Sprawdzanie czy otwarto udostępniony plan ---
+async function checkSharedPlan() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const planId = urlParams.get('id');
+
+  if (planId) {
+    UI.showLoading();
+    // Ukrywamy formularz, skoro oglądamy gotowy plan
+    if (UI.elements.setupContainer) UI.elements.setupContainer.classList.add('hidden');
+
+    try {
+      const response = await fetch(`/api/get_plan/${planId}`);
+      if (!response.ok) throw new Error("Nie znaleziono planu.");
+      
+      const data = await response.json();
+      
+      // Renderujemy plan z bazy (plan_data zawiera 'plan' i 'sources')
+      UI.elements.result.innerHTML = UI.renderTimeline(data.plan_data.plan);
+      
+      // Dodajemy przycisk "Stwórz własny plan", aby ułatwić powrót
+      const backBtn = document.createElement('button');
+      backBtn.innerText = "Stwórz własny plan";
+      backBtn.className = "mt-6 bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-full transition mx-auto block";
+      backBtn.onclick = () => window.location.href = window.location.origin;
+      UI.elements.result.appendChild(backBtn);
+
+    } catch (error) {
+      console.error("Błąd pobierania planu:", error);
+      UI.elements.result.innerHTML = `<div class="text-red-400 p-10 text-center">Nie udało się wczytać planu.</div>`;
+    } finally {
+      UI.hideLoading();
+    }
+  }
+}
+
+// --- FUNKCJA 3: Obsługa przycisku kopiowania linku ---
+function createShareButton(planId) {
+  const shareUrl = `${window.location.origin}${window.location.pathname}?id=${planId}`;
+  
+  // Usuwamy stary przycisk jeśli istnieje
+  const oldBtn = document.getElementById('share-plan-btn');
+  if (oldBtn) oldBtn.remove();
+
+  const shareBtn = document.createElement('button');
+  shareBtn.id = 'share-plan-btn';
+  shareBtn.innerHTML = `<span>🔗 Kopiuj link do planu</span>`;
+  shareBtn.className = "fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-full shadow-2xl transition-all transform hover:scale-105 z-50 flex items-center gap-2 font-bold";
+  
+  shareBtn.onclick = () => {
+    navigator.clipboard.writeText(shareUrl);
+    shareBtn.innerText = "✅ Skopiowano!";
+    setTimeout(() => { shareBtn.innerHTML = `<span>🔗 Kopiuj link do planu</span>`; }, 2000);
+  };
+
+  document.body.appendChild(shareBtn);
+}
+
+// --- OBSŁUGA FORMULARZA (SUBMIT) ---
 UI.elements.form.addEventListener("submit", async (e) => {
   e.preventDefault();
-
   const input = UI.elements.destinationInput;
 
   if (!isPlaceSelected) {
-    // 1. Ustawiamy treść błędu (systemowy dymek)
     input.setCustomValidity("Wybierz miasto z listy");
-
-    // 2. Pokazujemy dymek użytkownikowi
     input.reportValidity();
-
-    // 3. Czyścimy błąd, gdy tylko użytkownik zacznie znowu pisać
-    input.addEventListener("input", () => input.setCustomValidity(""), {
-      once: true,
-    });
-
+    input.addEventListener("input", () => input.setCustomValidity(""), { once: true });
     return;
   }
 
@@ -52,19 +101,28 @@ UI.elements.form.addEventListener("submit", async (e) => {
 
   try {
     const data = await fetchTripPlan(destination, days);
+    
+    // 1. Renderujemy plan
     UI.elements.result.innerHTML = UI.renderTimeline(data.plan);
+    
+    // 2. Jeśli backend zwrócił ID, tworzymy przycisk udostępniania
+    if (data.id) {
+      createShareButton(data.id);
+    }
+
   } catch (error) {
     console.error("Błąd podczas generowania planu:", error);
     UI.elements.result.innerHTML = `<div class="text-red-400 p-10 text-center font-bold uppercase tracking-widest">${error.message}</div>`;
   } finally {
     UI.hideLoading();
     if (UI.elements.result) {
-      UI.elements.result.scrollIntoView({ 
-        behavior: "smooth", 
-        block: "start" 
-      });
+      UI.elements.result.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
 });
 
-document.addEventListener("DOMContentLoaded", initAutocomplete);
+// --- START APLIKACJI ---
+document.addEventListener("DOMContentLoaded", () => {
+  initAutocomplete();
+  checkSharedPlan(); // Sprawdzamy czy w URL jest ?id=
+});
