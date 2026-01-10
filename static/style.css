@@ -201,3 +201,28 @@ input:focus {
     transform: translate3d(4px, 0, 0);
   }
 }
+
+/* Wymuszenie wyświetlania listy Google Maps nad wszystkim innym */
+.pac-container {
+    z-index: 10000 !important;
+    position: fixed !important; /* Fixed lepiej działa na mobilnym Safari niż absolute */
+    display: block !important;
+    visibility: visible !important;
+    background-color: white !important;
+}
+
+/* Powiększenie elementów dla łatwiejszego klikania palcem na iPadzie */
+.pac-item {
+    padding: 15px !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    cursor: pointer !important;
+}
+
+/* Naprawa błędu, w którym lista jest ucięta przez klawiaturę */
+body {
+    height: auto !important;
+    min-height: 100vh;
+}
+
+
