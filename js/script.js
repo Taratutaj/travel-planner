@@ -71,7 +71,7 @@ function createShareButton(planId) {
   const shareBtn = document.createElement('button');
   shareBtn.id = 'share-plan-btn';
   shareBtn.innerHTML = `<span>🔗 Kopiuj link do planu</span>`;
-  shareBtn.className = "fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-full shadow-2xl transition-all transform hover:scale-105 z-50 flex items-center gap-2 font-bold";
+  shareBtn.className = "fixed bottom-8 right-8 bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-full shadow-2xl transition-all transform hover:scale-105 z-50 flex items-center gap-2 font-bold";
   
   shareBtn.onclick = () => {
     navigator.clipboard.writeText(shareUrl);
