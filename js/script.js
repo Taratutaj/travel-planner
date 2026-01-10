@@ -44,7 +44,7 @@ async function checkSharedPlan() {
       // Renderujemy plan z bazy (plan_data zawiera 'plan' i 'sources')
       UI.elements.result.innerHTML = UI.renderTimeline(data.plan_data.plan);
       
-      
+      createShareButton(planId);
 
     } catch (error) {
       console.error("Błąd pobierania planu:", error);
