@@ -56,8 +56,6 @@ async function checkSharedPlan() {
       // Dodajemy przycisk kopiowania (dla iPada/Mobile)
       createShareButton(planId);
       
-      // Dodajemy przycisk na samym dole
-      addCreateOwnPlanButton();
 
     } catch (error) {
       console.error("Błąd pobierania planu:", error);
@@ -69,22 +67,9 @@ async function checkSharedPlan() {
 }
 
 // --- NOWA FUNKCJA: Przycisk na samym dole ---
-function addCreateOwnPlanButton() {
-  const container = document.createElement('div');
-  Object.assign(container.style, {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    padding: '40px 0',
-    marginTop: '20px',
-    clear: 'both'
-  });
 
-  const btn = document.createElement('button');
-  btn.innerText = "Stwórz własny plan";
-  btn.className = "bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-full transition-all border border-white/20 font-semibold";
-  btn.onclick = () => window.location.href = window.location.origin;
 
+  
   container.appendChild(btn);
   UI.elements.result.appendChild(container);
 }
