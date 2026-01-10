@@ -11,6 +11,16 @@ function initAutocomplete() {
   const autocomplete = new google.maps.places.Autocomplete(input, {
     types: ["(regions)"],
   });
+  / FIX DLA IPADA: Zapobiega "ukrywaniu" listy przez system
+  input.addEventListener('focus', () => {
+      // Krótkie opóźnienie, aby klawiatura zdążyła się wysunąć
+      setTimeout(() => {
+          const container = document.querySelector('.pac-container');
+          if (container) {
+              container.style.zIndex = "10000";
+          }
+      }, 300);
+  });
 
   input.addEventListener("input", () => {
     isPlaceSelected = false;
