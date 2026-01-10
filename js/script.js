@@ -105,8 +105,14 @@ UI.elements.form.addEventListener("submit", async (e) => {
     // 1. Renderujemy plan
     UI.elements.result.innerHTML = UI.renderTimeline(data.plan);
     
-    // 2. Jeśli backend zwrócił ID, tworzymy przycisk udostępniania
+    // 2. Jeśli backend zwrócił ID, tworzymy przycisk udostępniania i AKTUALIZUJEMY PASEK ADRESU
     if (data.id) {
+      const newUrl = `${window.location.origin}${window.location.pathname}?id=${data.id}`;
+    
+    // Ta linia zmienia link w przeglądarce bez przeładowania strony!
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    
+    // Tworzymy przycisk do kopiowania linku
       createShareButton(data.id);
     }
 
