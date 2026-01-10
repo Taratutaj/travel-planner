@@ -98,6 +98,11 @@ WYMAGANIA DOTYCZĄCE TREŚCI:
 - Używaj pogrubień Markdown dla kluczowych nazw w opisach.
 - JĘZYK: country_en, location_en, maps_query -> angielski. Tytuły i opisy -> polski.
 
+ZASADY GOOGLE MAPS:
+- Pole 'maps_query' musi być precyzyjne: [Pełna nazwa atrakcji] + [Miasto] + [Kraj].
+- Nigdy nie używaj ogólnych nazw typu "Lokalna restauracja", "Tradycyjna kawiarnia" czy "Sklep z pamiątkami".
+- Każdy punkt planu MUSI zawierać konkretną, unikalną nazwę własną istniejącego miejsca.
+
 UNSPLASH:
 - location_en musi być konkretne (np. 'Bari Old Town Streets Rome' zamiast 'Bari').
 - Każdy dzień musi mieć UNIKALNE location_en.
