@@ -75,9 +75,22 @@ function createShareButton(planId) {
   document.body.appendChild(shareBtn);
 }
 
+// Funkcja wyciągająca pierwszą podpowiedź z listy
+function selectFirstSuggestion() {
+    const firstItem = suggestionsList.querySelector('.suggestion-item');
+    if (firstItem) {
+        input.value = firstItem.innerText;
+        suggestionsList.innerHTML = ''; // Czyścimy listę
+        return true;
+    }
+    return false;
+}
+
 // --- OBSŁUGA FORMULARZA (SUBMIT) ---
 UI.elements.form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  // WYMUSZENIE: Jeśli są podpowiedzi, wybierz pierwszą przed startem
+  selectFirstSuggestion();
   const input = UI.elements.destinationInput;
 
   if (!isPlaceSelected) {
