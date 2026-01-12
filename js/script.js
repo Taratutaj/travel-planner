@@ -1,7 +1,52 @@
 import { UI } from "./ui.js";
 import { fetchTripPlan } from "./api.js";
 
-// --- FUNKCJA 1: USUNIĘTA (Autocomplete Google Maps) ---
+// --- FUNKCJA 1: (Autocomplete Google Maps) ---
+
+let autocomplete;
+let isPlaceSelected = false;
+
+function initAutocomplete() {
+  const input = document.getElementById("destination");
+  if (!input) return;
+
+  const options = {
+    types: ["(cities)"],
+  };
+
+  autocomplete = new google.maps.places.Autocomplete(input, options);
+
+  // Główne zdarzenie wyboru miejsca z listy
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace();
+
+    // Sprawdzamy, czy obiekt place ma geometrię (czyli czy istnieje w bazie Google)
+    if (place && place.geometry) {
+      isPlaceSelected = true;
+      input.classList.remove("border-red-500", "ring-2", "ring-red-500");
+    } else {
+      isPlaceSelected = false;
+    }
+  });
+
+  // KLUCZOWE: Resetowanie wyboru przy jakiejkolwiek ręcznej zmianie tekstu
+  input.addEventListener("input", () => {
+    isPlaceSelected = false;
+    input.classList.remove("border-red-500", "ring-2", "ring-red-500");
+  });
+
+  // FIX DLA IPADA/MOBILE:
+  // Zdarzenie 'touchend' na kontenerze podpowiedzi wymusza wybór na systemach iOS
+  setTimeout(() => {
+    const containers = document.getElementsByClassName("pac-container");
+    for (let container of containers) {
+      container.addEventListener("touchend", (e) => {
+        // Pozwala to na poprawną reakcję Google Maps na dotyk
+        e.stopImmediatePropagation();
+      });
+    }
+  }, 1000);
+}
 
 // --- FUNKCJA 2: Sprawdzanie czy otwarto udostępniony plan ---
 async function checkSharedPlan() {
@@ -9,6 +54,7 @@ async function checkSharedPlan() {
   const planId = urlParams.get("id");
 
   if (planId) {
+    UI.showLoading(); // Pokazujemy ładowanie przy pobieraniu linku
     try {
       const response = await fetch(`/api/get_plan/${planId}`);
       if (!response.ok) throw new Error("Nie znaleziono planu.");
@@ -53,11 +99,20 @@ UI.elements.form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const input = UI.elements.destinationInput;
+
+  // WALIDACJA: Jeśli użytkownik wpisał coś ręcznie (np. "Nibylandia") i nie wybrał z listy
+  if (!isPlaceSelected) {
+    input.focus();
+    // Dodanie czerwonej obwódki i prosta animacja błędu
+    input.classList.add("border-red-500", "ring-2", "ring-red-500");
+    alert(
+      "Proszę wybrać miejsce z listy podpowiedzi, która się pojawi podczas wpisywania."
+    );
+    return;
+  }
+
   const destination = input.value;
   const days = UI.elements.daysInput.value;
-
-  // Logika sprawdzania isPlaceSelected została usunięta.
-  // Przeglądarka sprawdzi tylko, czy pole nie jest puste (jeśli dodasz 'required' w HTML).
 
   UI.showLoading();
 
@@ -83,6 +138,11 @@ UI.elements.form.addEventListener("submit", async (e) => {
 
 // --- START APLIKACJI ---
 document.addEventListener("DOMContentLoaded", () => {
-  // initAutocomplete() - USUNIĘTO
+  // Sprawdzamy czy Google Maps zostało załadowane
+  if (typeof google !== "undefined") {
+    initAutocomplete();
+  } else {
+    console.error("Błąd: Biblioteka Google Maps nie została załadowana.");
+  }
   checkSharedPlan();
 });

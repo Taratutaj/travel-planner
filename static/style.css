@@ -202,5 +202,66 @@ input:focus {
   }
 }
 
+/* Stylizacja listy Google Places */
+/* Kontener główny listy podpowiedzi */
+.pac-container {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  margin-top: 5px !important;
+  font-family: "Inter", sans-serif !important;
+  z-index: 10000 !important;
+}
 
+/* Pojedynczy element na liście */
+.pac-item {
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  color: #374151 !important; /* Ciemnoszary tekst */
+  border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
 
+.pac-item:first-child {
+  border-top: none !important;
+}
+
+/* Styl po najechaniu myszką */
+.pac-item:hover {
+  background-color: rgba(
+    34,
+    197,
+    94,
+    0.1
+  ) !important; /* Delikatny zielony hover */
+}
+
+/* Główna nazwa miejsca (np. Warszawa) */
+.pac-item-query {
+  color: #111827 !important; /* Bardzo ciemny tekst */
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  padding-right: 5px;
+}
+
+/* Tekst doprecyzowujący (np. Polska) */
+.pac-matched {
+  color: #16a34a !important; /* Kolor zielony pasujący do przycisku */
+}
+
+/* Ikona pinezki obok podpowiedzi */
+.pac-icon {
+  margin-top: -2px !important;
+  filter: grayscale(1) opacity(0.5); /* Subtelniejsza ikona */
+}
+
+/* Usuwa logo "powered by Google" jeśli chcesz bardziej czysty wygląd 
+   (Uwaga: Regulamin Google wymaga jego wyświetlania, ale możesz go ostylować) */
+.hdpi.pac-logo:after {
+  filter: invert(1) brightness(0.5); /* Dopasowanie logo do jasnego tła */
+}
