@@ -7,6 +7,9 @@
     <meta name="referrer" content="no-referrer">
     <title>Twój Plan Podróży</title>
 
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQGXusJvpE27VsANI18OWruu6YMMFyxNY&libraries=places"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -14,8 +17,7 @@
     <link rel="stylesheet" href="/static/style.css">
     <script type="module" src="/js/script.js"></script>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQGXusJvpE27VsANI18OWruu6YMMFyxNY&libraries=places"
-        async defer></script>
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 
@@ -63,7 +65,7 @@
                             Miejsce podróży:
                         </label>
                         <input type="search" id="destination" name="travel-destination"
-                            placeholder="np. Paryż, Rzym, Madera" data-lpignore="true"
+                            placeholder="np. Paryż, Rzym, Madera" data-lpignore="true" required
                             class="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400/50 transition-all shadow-inner">
                     </div>
 
@@ -99,6 +101,3 @@
 
 
 </html>
-
-
-
