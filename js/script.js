@@ -11,7 +11,7 @@ function initAutocomplete() {
   if (!input) return;
 
   const options = {
-    types: ["(cities)"],
+    types: ["(regions)"],
   };
 
   autocomplete = new google.maps.places.Autocomplete(input, options);
