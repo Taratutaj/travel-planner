@@ -1,6 +1,7 @@
 // js/ui.js
 import { travelFacts } from "./travelFacts.js";
 
+const localeid= "260935";
 // Eksportujemy obiekt UI
 export const UI = {
   // Dynamiczne pobieranie elementów, aby uniknąć błędów "null"
@@ -16,6 +17,7 @@ export const UI = {
       daysInput: document.getElementById("days"),
     };
   },
+  
 
   showLoading() {
     const el = this.elements;
@@ -154,7 +156,7 @@ export const UI = {
           </div>
         </div>
         <div>
-        <script async src="//trpwdg.com/content?trs=488701&shmarker=633612&locale=pl&country=128&city=436011&powered_by=true&campaign_id=87&promo_id=2466" charset="utf-8"></script>
+        <script async src="https://trpwdg.com/content?currency=PLN&trs=488701&shmarker=633612&language=pl&locale=${localeid}&layout=horizontal&cards=4&powered_by=true&campaign_id=89&promo_id=3947" charset="utf-8"></script>
         </div>`;
     });
 
