@@ -37,6 +37,19 @@
         document.head.appendChild(script);
       })();
 </script>
+    <script>
+const observer = new MutationObserver(() => {
+  const button = document.querySelector(
+    '.DefaultSearch-module__submitBtn___r2rb8 span'
+  );
+  if (button) {
+    button.textContent = 'Generuj plan';
+    observer.disconnect();
+  }
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
+</script>
 </head>
 
 <body class="antialiased">
@@ -125,6 +138,7 @@
 
 
 </html>
+
 
 
 
