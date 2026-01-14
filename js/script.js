@@ -6,6 +6,8 @@ import { fetchTripPlan } from "./api.js";
 let autocomplete;
 let isPlaceSelected = false;
 
+document.querySelector('a[href*="flightSearch"] span').innerText = 'generuj plan';
+
 function initAutocomplete() {
   const input = document.getElementById("destination");
   if (!input) return;
