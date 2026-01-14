@@ -152,6 +152,9 @@ export const UI = {
               )
               .join("")}
           </div>
+        </div>
+        <div>
+        <script async src="//trpwdg.com/content?trs=488701&shmarker=633612&locale=pl&country=128&city=436011&powered_by=true&campaign_id=87&promo_id=2466" charset="utf-8"></script>
         </div>`;
     });
 
