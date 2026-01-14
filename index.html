@@ -37,19 +37,7 @@
         document.head.appendChild(script);
       })();
 </script>
-    <script>
-const observer = new MutationObserver(() => {
-  const button = document.querySelector(
-    '.DefaultSearch-module__submitBtn___r2rb8 span'
-  );
-  if (button) {
-    button.textContent = 'Generuj plan';
-    observer.disconnect();
-  }
-});
-
-observer.observe(document.body, { childList: true, subtree: true });
-</script>
+    
 </head>
 
 <body class="antialiased">
@@ -133,11 +121,38 @@ observer.observe(document.body, { childList: true, subtree: true });
     <script>
         // Tutaj możesz dodać logikę specyficzną dla tej strony, jeśli nie ma jej w script.js
     </script>
+    <script>
+(function () {
+  const observer = new MutationObserver(() => {
+    const link = document.querySelector(
+      'a[href="https://cozobaczyc.vercel.app/"]'
+    );
+
+    if (!link) return;
+
+    const span = link.querySelector("span");
+    if (!span) return;
+
+    if (span.textContent !== "Sprawdź loty") {
+      span.textContent = "Sprawdź loty";
+    }
+
+    observer.disconnect();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+})();
+</script>
+
 </body>
 
 
 
 </html>
+
 
 
 
