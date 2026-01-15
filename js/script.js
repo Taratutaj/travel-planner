@@ -1,5 +1,7 @@
 import { UI } from "./ui.js";
 import { fetchTripPlan } from "./api.js";
+// DODANO: Import funkcji z cityData.js
+import { getLocaleId, injectTravelpayoutsWidget } from "./cityData.js";
 
 // --- FUNKCJA 1: (Autocomplete Google Maps) ---
 
@@ -21,11 +23,8 @@ function initAutocomplete() {
 
   autocomplete = new google.maps.places.Autocomplete(input, options);
 
-  // Główne zdarzenie wyboru miejsca z listy
   autocomplete.addListener("place_changed", () => {
     const place = autocomplete.getPlace();
-
-    // Sprawdzamy, czy obiekt place ma geometrię (czyli czy istnieje w bazie Google)
     if (place && place.geometry) {
       isPlaceSelected = true;
       input.classList.remove("border-red-500", "ring-2", "ring-red-500");
@@ -34,19 +33,15 @@ function initAutocomplete() {
     }
   });
 
-  // KLUCZOWE: Resetowanie wyboru przy jakiejkolwiek ręcznej zmianie tekstu
   input.addEventListener("input", () => {
     isPlaceSelected = false;
     input.classList.remove("border-red-500", "ring-2", "ring-red-500");
   });
 
-  // FIX DLA IPADA/MOBILE:
-  // Zdarzenie 'touchend' na kontenerze podpowiedzi wymusza wybór na systemach iOS
   setTimeout(() => {
     const containers = document.getElementsByClassName("pac-container");
     for (let container of containers) {
       container.addEventListener("touchend", (e) => {
-        // Pozwala to na poprawną reakcję Google Maps na dotyk
         e.stopImmediatePropagation();
       });
     }
@@ -59,14 +54,26 @@ async function checkSharedPlan() {
   const planId = urlParams.get("id");
 
   if (planId) {
-    UI.showLoading(); // Pokazujemy ładowanie przy pobieraniu linku
+    UI.showLoading(); 
     try {
       const response = await fetch(`/api/get_plan/${planId}`);
       if (!response.ok) throw new Error("Nie znaleziono planu.");
 
       const data = await response.json();
-      UI.elements.result.innerHTML = UI.renderTimeline(data.plan_data.plan);
+      
+      // POPRAWKA: Pobieramy plan z plan_data.plan
+      const actualPlan = data.plan_data.plan;
+      
+      UI.elements.result.innerHTML = UI.renderTimeline(actualPlan);
       createShareButton(planId);
+
+      // DODANO: Wyświetlanie widgetu przy wejściu z linku
+      if (actualPlan.days && actualPlan.days.length > 0) {
+        const cityName = actualPlan.days[0].location_en;
+        const localeId = getLocaleId(cityName);
+        injectTravelpayoutsWidget("travelpayouts-container", localeId);
+      }
+        
     } catch (error) {
       console.error("Błąd pobierania planu:", error);
       UI.elements.result.innerHTML = `<div class="text-red-400 p-10 text-center">Nie udało się wczytać planu.</div>`;
@@ -105,14 +112,10 @@ UI.elements.form.addEventListener("submit", async (e) => {
 
   const input = UI.elements.destinationInput;
 
-  // WALIDACJA: Jeśli użytkownik wpisał coś ręcznie (np. "Nibylandia") i nie wybrał z listy
   if (!isPlaceSelected) {
     input.focus();
-    // Dodanie czerwonej obwódki i prosta animacja błędu
     input.classList.add("border-red-500", "ring-2", "ring-red-500");
-    alert(
-      "Proszę wybrać miejsce z listy podpowiedzi, która się pojawi podczas wpisywania."
-    );
+    alert("Proszę wybrać miejsce z listy podpowiedzi.");
     return;
   }
 
@@ -124,6 +127,13 @@ UI.elements.form.addEventListener("submit", async (e) => {
   try {
     const data = await fetchTripPlan(destination, days);
     UI.elements.result.innerHTML = UI.renderTimeline(data.plan);
+
+    // DODANO: Wyświetlanie widgetu po wygenerowaniu nowego planu
+    if (data.plan && data.plan.days && data.plan.days.length > 0) {
+      const cityName = data.plan.days[0].location_en;
+      const localeId = getLocaleId(cityName);
+      injectTravelpayoutsWidget("travelpayouts-container", localeId);
+    }
 
     if (data.id) {
       const newUrl = `${window.location.origin}${window.location.pathname}?id=${data.id}`;
@@ -143,7 +153,6 @@ UI.elements.form.addEventListener("submit", async (e) => {
 
 // --- START APLIKACJI ---
 document.addEventListener("DOMContentLoaded", () => {
-  // Sprawdzamy czy Google Maps zostało załadowane
   if (typeof google !== "undefined") {
     initAutocomplete();
   } else {
