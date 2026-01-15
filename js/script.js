@@ -1,5 +1,6 @@
 import { UI } from "./ui.js";
 import { fetchTripPlan } from "./api.js";
+import { getLocaleId, injectTravelpayoutsWidget } from "./cityData.js";
 
 // --- FUNKCJA 1: (Autocomplete Google Maps) ---
 
@@ -124,6 +125,12 @@ UI.elements.form.addEventListener("submit", async (e) => {
   try {
     const data = await fetchTripPlan(destination, days);
     UI.elements.result.innerHTML = UI.renderTimeline(data.plan);
+
+      // --- NOWA LOGIKA WIDGETU ---
+    // Pobieramy nazwę miasta z pierwszego dnia planu (location_en)
+    const cityName = data.plan.days[0].location_en; 
+    const localeId = getLocaleId(cityName);
+    injectTravelpayoutsWidget("travelpayouts-container", localeId);
 
     if (data.id) {
       const newUrl = `${window.location.origin}${window.location.pathname}?id=${data.id}`;
