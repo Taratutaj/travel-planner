@@ -65,10 +65,12 @@ async function checkSharedPlan() {
       const response = await fetch(`/api/get_plan/${planId}`);
       if (!response.ok) throw new Error("Nie znaleziono planu.");
 
-      const data = await response.json();
-      UI.elements.result.innerHTML = UI.renderTimeline(data.plan_data.plan);
+      onst data = await response.json();
+      const actualPlan = data.plan_data.plan; // Wyciągamy plan do zmiennej dla wygody
+
+      UI.elements.result.innerHTML = UI.renderTimeline(actualPlan);
       createShareButton(planId);
-      const cityName = data.plan.days[0].location_en;
+      const cityName = actualPlan.days[0].location_en;
       const localeId = getLocaleId(cityName);
       injectTravelpayoutsWidget("travelpayouts-container", localeId);  
         
