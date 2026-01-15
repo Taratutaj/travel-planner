@@ -1,6 +1,5 @@
 import { UI } from "./ui.js";
 import { fetchTripPlan } from "./api.js";
-import { getLocaleId, injectTravelpayoutsWidget } from "./cityData.js";
 
 // --- FUNKCJA 1: (Autocomplete Google Maps) ---
 
@@ -65,15 +64,9 @@ async function checkSharedPlan() {
       const response = await fetch(`/api/get_plan/${planId}`);
       if (!response.ok) throw new Error("Nie znaleziono planu.");
 
-      onst data = await response.json();
-      const actualPlan = data.plan_data.plan; // Wyciągamy plan do zmiennej dla wygody
-
-      UI.elements.result.innerHTML = UI.renderTimeline(actualPlan);
+      const data = await response.json();
+      UI.elements.result.innerHTML = UI.renderTimeline(data.plan_data.plan);
       createShareButton(planId);
-      const cityName = actualPlan.days[0].location_en;
-      const localeId = getLocaleId(cityName);
-      injectTravelpayoutsWidget("travelpayouts-container", localeId);  
-        
     } catch (error) {
       console.error("Błąd pobierania planu:", error);
       UI.elements.result.innerHTML = `<div class="text-red-400 p-10 text-center">Nie udało się wczytać planu.</div>`;
@@ -131,12 +124,6 @@ UI.elements.form.addEventListener("submit", async (e) => {
   try {
     const data = await fetchTripPlan(destination, days);
     UI.elements.result.innerHTML = UI.renderTimeline(data.plan);
-
-      // --- NOWA LOGIKA WIDGETU ---
-    // Pobieramy nazwę miasta z pierwszego dnia planu (location_en)
-    const cityName = data.plan.days[0].location_en; 
-    const localeId = getLocaleId(cityName);
-    injectTravelpayoutsWidget("travelpayouts-container", localeId);
 
     if (data.id) {
       const newUrl = `${window.location.origin}${window.location.pathname}?id=${data.id}`;
