@@ -50,6 +50,8 @@ body::before {
   border: 1px solid var(--glass-border);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   padding: 30px;
+  width: 100%; /* Wymuś pełną szerokość */
+  box-sizing: border-box; /* Upewnij się, że padding nie powiększa karty poza 100% */
 }
 
 /* --- FORMULARZ I INPUTY --- */
