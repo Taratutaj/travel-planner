@@ -68,11 +68,12 @@ async function checkSharedPlan() {
       createShareButton(planId);
 
       // DODANO: Wyświetlanie widgetu przy wejściu z linku
-      if (actualPlan.days && actualPlan.days.length > 0) {
+      if (actualPlan && actualPlan.days && actualPlan.days.length > 0) {
         const cityName = actualPlan.days[0].location_en;
-        const localeId = getLocaleId(cityName);
+        const countryName = actualPlan.country_en; // Pobieramy kraj z głównego obiektu planu
+        const localeId = getLocaleId(cityName, countryName); // Przekazujemy oba parametry
         injectTravelpayoutsWidget("travelpayouts-container", localeId);
-      }
+    }
         
     } catch (error) {
       console.error("Błąd pobierania planu:", error);
