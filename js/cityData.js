@@ -417,7 +417,7 @@ const CITY_TO_LOCALE = {
     "York": "67204",
     "Zaandam": "74827",
     "Zator": "228605",
-    "Zundert": "74819"
+    "Zundert": "74819",
     
     "Denmark": "65338",         // Aarhus
     "United Arab Emirates": "60013", // Abu Dhabi
