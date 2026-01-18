@@ -162,8 +162,3 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-
-const cityName = data.plan.days[0].location_en;
-console.log("Szukane miasto:", cityName); // Zobacz w konsoli przeglądarki (F12) co tu jest
-const localeId = getLocaleId(cityName);
-console.log("Znalezione ID:", localeId);
