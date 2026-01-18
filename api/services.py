@@ -122,7 +122,7 @@ Oprócz planu dnia, w sekcji 'travel_tips' MUSISZ zawrzeć następujące informa
        - airport_transfer: Najlepszy sposób dojazdu z głównego lotniska do centrum (ceny, czas, opcje jak Uber/pociąg).
        - local_transport: Czy kupować karty miejskie, jakie aplikacje zainstalować (np. Grab, Bolt, Citymapper).
        - rental_info: Czy wymagane jest Międzynarodowe Prawo Jazdy, po której stronie jeździ się w tym kraju, orientacyjne ceny paliwa.
-    3. finances:
+    3. finances (ceny podawaj w lokalnej walucie i zł):
        - currency_payments: Jaka waluta, czy Revolut/karty są powszechnie akceptowane, ile gotówki mieć na bazary.
        - example_prices: Lista 3-4 przykładowych cen (kawa, piwo, obiad, bilet komunikacji).
        - tipping_culture: Jak wygląda dawanie napiwków (czy są w rachunku, czy dawać ekstra).
