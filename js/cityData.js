@@ -476,11 +476,28 @@ const CITY_TO_LOCALE = {
 /**
  * Pobiera ID locale dla danego miasta lub zwraca domyślny kod.
  */
-export function getLocaleId(cityName) {
-    const defaultLocale = "260932"; 
-    return CITY_TO_LOCALE[cityName] || defaultLocale;
-}
+export function getLocaleId(cityName, countryName) {
+    const defaultLocale = "260932"; // Domyślnie Nicea (lub zmień na inne)
 
+    // 1. Próba dopasowania pełnej nazwy miasta (np. "Warsaw")
+    if (cityName && CITY_TO_LOCALE[cityName]) {
+        return CITY_TO_LOCALE[cityName];
+    }
+
+    // 2. Próba wyciągnięcia miasta, jeśli nazwa to "Warsaw, Poland"
+    if (cityName && cityName.includes(',')) {
+        const shortCity = cityName.split(',')[0].trim();
+        if (CITY_TO_LOCALE[shortCity]) return CITY_TO_LOCALE[shortCity];
+    }
+
+    // 3. Jeśli miasta nie ma, szukamy po kraju (countryName to pole country_en z API)
+    if (countryName && CITY_TO_LOCALE[countryName]) {
+        return CITY_TO_LOCALE[countryName];
+    }
+
+    // 4. Ostateczność: Domyślny kod
+    return defaultLocale;
+}
 /**
  * Tworzy i dodaje widget Travelpayouts do wskazanego kontenera.
  */
