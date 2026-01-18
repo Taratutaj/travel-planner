@@ -472,7 +472,6 @@ const CITY_TO_LOCALE = {
     "Estonia": "65702",         // Tallinn
     "Poland": "485"             // Warsaw
 };
-};
 
 /**
  * Pobiera ID locale dla danego miasta lub zwraca domyślny kod.
