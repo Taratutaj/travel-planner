@@ -131,11 +131,11 @@ UI.elements.form.addEventListener("submit", async (e) => {
 
     // DODANO: Wyświetlanie widgetu po wygenerowaniu nowego planu
     if (data.plan && data.plan.days && data.plan.days.length > 0) {
-      const cityName = data.plan.days[0].location_en;
-      const localeId = getLocaleId(cityName);
-      injectTravelpayoutsWidget("travelpayouts-container", localeId);
-    }
-
+    const cityName = data.plan.days[0].location_en;
+    const countryName = data.plan.country_en; // Gemini zwraca to teraz dzięki RESPONSE_SCHEMA
+    const localeId = getLocaleId(cityName, countryName);
+    injectTravelpayoutsWidget("travelpayouts-container", localeId);
+}
     if (data.id) {
       const newUrl = `${window.location.origin}${window.location.pathname}?id=${data.id}`;
       window.history.pushState({ path: newUrl }, "", newUrl);
