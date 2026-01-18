@@ -1,7 +1,6 @@
 // js/cityData.js
 
 const CITY_TO_LOCALE = {
-    const CITY_TO_LOCALE = {
     "Aarhus": "65338",
     "Abu Dhabi": "60013",
     "Akureyri": "71389",
