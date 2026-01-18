@@ -112,6 +112,24 @@ LOGISTYKA I CZAS TRWANIA:
 - Jeśli aktywność jest czasochłonna (jak całodniowa wycieczka lub długa wędrówka), musi być ona głównym punktem dnia a pozostałe spokojniesze aktywnoci.
 - Uwzględniaj czasy przejazdów między punktami oraz czas na odpoczynek i posiłki.
 - Priorytetem jest REALIZM: plan musi być fizycznie możliwy do wykonania przez przeciętnego turystę.
+
+Oprócz planu dnia, w sekcji 'travel_tips' MUSISZ zawrzeć następujące informacje po Polsku:
+    1. before_you_go (Zanim wyruszysz):
+       - visa_docs: Szczegółowe info dla obywateli Polski (czy wymagana wiza/e-visa, czy wystarczy dowód, ważność paszportu min. 6 msc). Dodaj zdanie, że warto sprawdzić aktualne info na gov.pl.
+       - health: Zalecane/obowiązkowe szczepienia, informacje o testach lub certyfikatach.
+       - essentials: Co konkretnie zabrać (np. adapter do gniazdek, specyficzne leki, ubiór).
+    2. transport:
+       - airport_transfer: Najlepszy sposób dojazdu z głównego lotniska do centrum (ceny, czas, opcje jak Uber/pociąg).
+       - local_transport: Czy kupować karty miejskie, jakie aplikacje zainstalować (np. Grab, Bolt, Citymapper).
+       - rental_info: Czy wymagane jest Międzynarodowe Prawo Jazdy, po której stronie jeździ się w tym kraju, orientacyjne ceny paliwa.
+    3. finances:
+       - currency_payments: Jaka waluta, czy Revolut/karty są powszechnie akceptowane, ile gotówki mieć na bazary.
+       - example_prices: Lista 3-4 przykładowych cen (kawa, piwo, obiad, bilet komunikacji).
+       - tipping_culture: Jak wygląda dawanie napiwków (czy są w rachunku, czy dawać ekstra).
+    4. culture_safety:
+       - phrases: 3 najważniejsze zwroty (Dzień dobry, Dziękuję, Ile kosztuje) wraz z wymową.
+       - etiquette: Zasady zachowania (co wypada, czego kategorycznie nie robić).
+       - safety_scams: Rejony których unikać oraz popularne oszustwa na turystach.
 """,
     )
 

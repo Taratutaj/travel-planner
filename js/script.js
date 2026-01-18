@@ -10,7 +10,7 @@ let isPlaceSelected = false;
 
 const btnSpan = document.querySelector('a[class*="submitBtn"] span');
 if (btnSpan) {
-    btnSpan.innerText = 'generuj plan';
+  btnSpan.innerText = "generuj plan";
 }
 
 function initAutocomplete() {
@@ -54,33 +54,37 @@ async function checkSharedPlan() {
   const planId = urlParams.get("id");
 
   if (planId) {
-    UI.showLoading(); 
-    try {
-      const response = await fetch(`/api/get_plan/${planId}`);
-      if (!response.ok) throw new Error("Nie znaleziono planu.");
+    UI.showLoading();
+    fetch(`/api/plan/${planId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.plan) {
+          // 1. Renderujemy oś czasu
+          let finalHtml = UI.renderTimeline(data.plan);
 
-      const data = await response.json();
-      
-      // POPRAWKA: Pobieramy plan z plan_data.plan
-      const actualPlan = data.plan_data.plan;
-      
-      UI.elements.result.innerHTML = UI.renderTimeline(actualPlan);
-      createShareButton(planId);
+          // 2. DODANO: Renderujemy sekcję porad, jeśli istnieje w zapisanym planie
+          if (data.plan.travel_tips) {
+            finalHtml += UI.renderTravelTips(data.plan.travel_tips);
+          }
 
-      // DODANO: Wyświetlanie widgetu przy wejściu z linku
-      if (actualPlan && actualPlan.days && actualPlan.days.length > 0) {
-        const cityName = actualPlan.days[0].location_en;
-        const countryName = actualPlan.country_en; // Pobieramy kraj z głównego obiektu planu
-        const localeId = getLocaleId(cityName, countryName); // Przekazujemy oba parametry
-        injectTravelpayoutsWidget("travelpayouts-container", localeId);
-    }
-        
-    } catch (error) {
-      console.error("Błąd pobierania planu:", error);
-      UI.elements.result.innerHTML = `<div class="text-red-400 p-10 text-center">Nie udało się wczytać planu.</div>`;
-    } finally {
-      UI.hideLoading();
-    }
+          UI.elements.result.innerHTML = finalHtml;
+
+          // 3. Obsługa widgetu Travelpayouts dla wczytanego planu
+          if (data.plan.days && data.plan.days.length > 0) {
+            const cityName = data.plan.days[0].location_en;
+            const countryName = data.plan.country_en;
+            const localeId = getLocaleId(cityName, countryName);
+            injectTravelpayoutsWidget("travelpayouts-container", localeId);
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Błąd ładowania planu:", err);
+        UI.elements.result.innerHTML = `<div class="text-red-400 p-10 text-center uppercase">Nie udało się wczytać planu.</div>`;
+      })
+      .finally(() => {
+        UI.hideLoading();
+      });
   }
 }
 
@@ -127,15 +131,23 @@ UI.elements.form.addEventListener("submit", async (e) => {
 
   try {
     const data = await fetchTripPlan(destination, days);
-    UI.elements.result.innerHTML = UI.renderTimeline(data.plan);
+    // Renderujemy oś czasu (dni)
+    let finalHtml = UI.renderTimeline(data.plan);
+
+    // DODANO: Jeśli AI zwróciło travel_tips, doklejamy je pod planem dni
+    if (data.plan.travel_tips) {
+      finalHtml += UI.renderTravelTips(data.plan.travel_tips);
+    }
+
+    UI.elements.result.innerHTML = finalHtml;
 
     // DODANO: Wyświetlanie widgetu po wygenerowaniu nowego planu
     if (data.plan && data.plan.days && data.plan.days.length > 0) {
-    const cityName = data.plan.days[0].location_en;
-    const countryName = data.plan.country_en; // Gemini zwraca to teraz dzięki RESPONSE_SCHEMA
-    const localeId = getLocaleId(cityName, countryName);
-    injectTravelpayoutsWidget("travelpayouts-container", localeId);
-}
+      const cityName = data.plan.days[0].location_en;
+      const countryName = data.plan.country_en; // Gemini zwraca to teraz dzięki RESPONSE_SCHEMA
+      const localeId = getLocaleId(cityName, countryName);
+      injectTravelpayoutsWidget("travelpayouts-container", localeId);
+    }
     if (data.id) {
       const newUrl = `${window.location.origin}${window.location.pathname}?id=${data.id}`;
       window.history.pushState({ path: newUrl }, "", newUrl);
@@ -161,5 +173,3 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   checkSharedPlan();
 });
-
-
