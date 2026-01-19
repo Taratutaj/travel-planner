@@ -69,6 +69,9 @@ async function checkSharedPlan() {
 
           UI.elements.result.innerHTML = finalHtml;
 
+          const carLocale = getCarsLocale(cityName, countryName);
+          injectCarsWidget("cars-widget-container", carLocale);
+
           // 3. Obsługa widgetu Travelpayouts dla wczytanego planu
           if (data.plan.days && data.plan.days.length > 0) {
             const cityName = data.plan.days[0].location_en;
