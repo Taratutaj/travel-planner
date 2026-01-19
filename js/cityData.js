@@ -477,7 +477,7 @@ const CITY_TO_LOCALE = {
  * Pobiera ID locale dla danego miasta lub zwraca domyślny kod.
  */
 export function getLocaleId(cityName, countryName) {
-    const defaultLocale = "260932"; // Domyślnie Nicea (lub zmień na inne)
+    const defaultLocale = "485"; // Domyślnie Warszawa
 
     // 1. Próba dopasowania pełnej nazwy miasta (np. "Warsaw")
     if (cityName && CITY_TO_LOCALE[cityName]) {
