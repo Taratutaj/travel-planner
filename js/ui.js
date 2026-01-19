@@ -134,30 +134,6 @@ export const UI = {
           </div>
         </div>
       </div>
-
-      <!-- NOWA SEKCJA: Widget samochodów -->
-      <div class="glass-card p-8 mt-10 w-full border border-white/10 shadow-2xl relative overflow-hidden">
-        <div class="relative z-10">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
-                <i class="fas fa-car text-green-400"></i> 
-                Wynajem samochodów
-              </h3>
-              <p class="text-white/50 text-sm mt-1">Porównaj ceny i zarezerwuj auto na podróż</p>
-            </div>
-          </div>
-          
-          <div id="cars-widget-container" class="w-full min-h-[250px] bg-black/20 rounded-xl overflow-hidden backdrop-blur-sm">
-             <div class="flex items-center justify-center h-[250px] text-white/20">
-                <div class="text-center">
-                  <i class="fas fa-circle-notch fa-spin text-2xl mb-2"></i>
-                  <p class="text-xs uppercase tracking-widest">Szukam najlepszych ofert...</p>
-                </div>
-             </div>
-          </div>
-        </div>
-      </div>
     </div>
     `;
   },

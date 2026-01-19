@@ -1,11 +1,6 @@
 import { UI } from "./ui.js";
 import { fetchTripPlan } from "./api.js";
-import {
-  getLocaleId,
-  injectTravelpayoutsWidget,
-  getCarsLocale,
-  injectCarsWidget,
-} from "./cityData.js";
+import { getLocaleId, injectTravelpayoutsWidget } from "./cityData.js";
 
 // --- FUNKCJA POMOCNICZA: Generuj nowy plan (Przycisk na dole) ---
 
@@ -113,20 +108,6 @@ async function checkSharedPlan() {
 
             const localeId = getLocaleId(cityName, countryName);
             injectTravelpayoutsWidget("travelpayouts-container", localeId);
-
-            const carLocale = getCarsLocale(cityName, countryName);
-            const carContainer = document.getElementById(
-              "cars-widget-container",
-            );
-
-            if (carContainer) {
-              if (carLocale) {
-                injectCarsWidget("cars-widget-container", carLocale);
-              } else {
-                const parentCard = carContainer.closest(".glass-card");
-                if (parentCard) parentCard.style.display = "none";
-              }
-            }
           }
           // Dodajemy przycisk na dole
           addGenerateNewPlanButton();
@@ -199,9 +180,6 @@ UI.elements.form.addEventListener("submit", async (e) => {
 
       const localeId = getLocaleId(cityName, countryName);
       injectTravelpayoutsWidget("travelpayouts-container", localeId);
-
-      const carLocale = getCarsLocale(cityName, countryName);
-      injectCarsWidget("cars-widget-container", carLocale);
     }
 
     // Dodajemy przycisk na samym dole
