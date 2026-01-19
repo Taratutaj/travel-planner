@@ -5,7 +5,6 @@ import { getLocaleId, injectTravelpayoutsWidget } from "./cityData.js";
 // --- FUNKCJA POMOCNICZA: Generuj nowy plan (Przycisk na dole) ---
 
 function addGenerateNewPlanButton() {
-  // Usuwamy stary przycisk jeśli istnieje
   const oldBtnContainer = document.getElementById("reset-btn-container");
   if (oldBtnContainer) oldBtnContainer.remove();
 
@@ -22,10 +21,7 @@ function addGenerateNewPlanButton() {
   `;
 
   btnContainer.querySelector("button").onclick = () => {
-    // Przewijamy na samą górę
     window.scrollTo({ top: 0, behavior: "smooth" });
-
-    // Opcjonalnie: focus na input po przewinięciu
     setTimeout(() => {
       const input = document.getElementById("destination");
       if (input) {
@@ -38,49 +34,50 @@ function addGenerateNewPlanButton() {
   UI.elements.result.appendChild(btnContainer);
 }
 
+// --- FUNKCJA POMOCNICZA: Wstrzykiwanie widgetu GYG ---
+function injectGYGWidget(destination) {
+  const gygContainer = document.getElementById("gyg-container");
+  if (!gygContainer) return;
+
+  gygContainer.innerHTML = `
+      <div data-gyg-href="https://widget.getyourguide.com/default/activities.frame" 
+           data-gyg-locale-code="pl-PL" 
+           data-gyg-widget="activities" 
+           data-gyg-number-of-items="3" 
+           data-gyg-partner-id="6QOAHMH" 
+           data-gyg-q="${destination}">
+      </div>
+    `;
+
+  const script = document.createElement("script");
+  script.src = "https://widget.getyourguide.com/dist/pa.umd.production.min.js";
+  script.async = true;
+  document.body.appendChild(script);
+}
+
 // --- FUNKCJA 1: (Autocomplete Google Maps) ---
 
 let autocomplete;
 let isPlaceSelected = false;
 
-const btnSpan = document.querySelector('a[class*="submitBtn"] span');
-if (btnSpan) {
-  btnSpan.innerText = "generuj plan";
-}
-
 function initAutocomplete() {
   const input = document.getElementById("destination");
   if (!input) return;
 
-  const options = {
-    types: ["(regions)"],
-  };
-
+  const options = { types: ["(regions)"] };
   autocomplete = new google.maps.places.Autocomplete(input, options);
 
   autocomplete.addListener("place_changed", () => {
     const place = autocomplete.getPlace();
-    if (place && place.geometry) {
-      isPlaceSelected = true;
+    isPlaceSelected = !!(place && place.geometry);
+    if (isPlaceSelected)
       input.classList.remove("border-red-500", "ring-2", "ring-red-500");
-    } else {
-      isPlaceSelected = false;
-    }
   });
 
   input.addEventListener("input", () => {
     isPlaceSelected = false;
     input.classList.remove("border-red-500", "ring-2", "ring-red-500");
   });
-
-  setTimeout(() => {
-    const containers = document.getElementsByClassName("pac-container");
-    for (let container of containers) {
-      container.addEventListener("touchend", (e) => {
-        e.stopImmediatePropagation();
-      });
-    }
-  }, 1000);
 }
 
 // --- FUNKCJA 2: Sprawdzanie czy otwarto udostępniony plan ---
@@ -90,51 +87,54 @@ async function checkSharedPlan() {
 
   if (planId) {
     UI.showLoading();
-    fetch(`/api/plan/${planId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.plan) {
-          let finalHtml = UI.renderTimeline(data.plan);
+    try {
+      const res = await fetch(`/api/plan/${planId}`);
+      const data = await res.json();
 
-          if (data.plan.travel_tips) {
-            finalHtml += UI.renderTravelTips(data.plan.travel_tips);
-          }
-
-          UI.elements.result.innerHTML = finalHtml;
-
-          if (data.plan.days && data.plan.days.length > 0) {
-            const cityName = data.plan.days[0].location_en;
-            const countryName = data.plan.country_en;
-
-            const localeId = getLocaleId(cityName, countryName);
-            injectTravelpayoutsWidget("travelpayouts-container", localeId);
-          }
-          // Dodajemy przycisk na dole
-          addGenerateNewPlanButton();
+      if (data.plan) {
+        let finalHtml = UI.renderTimeline(data.plan);
+        if (data.plan.travel_tips) {
+          finalHtml += UI.renderTravelTips(data.plan.travel_tips);
         }
-      })
-      .catch((err) => {
-        console.error("Błąd ładowania planu:", err);
-        UI.elements.result.innerHTML = `<div class="text-red-400 p-10 text-center uppercase">Nie udało się wczytać planu.</div>`;
-      })
-      .finally(() => {
-        UI.hideLoading();
-      });
+        UI.elements.result.innerHTML = finalHtml;
+
+        if (data.plan.days && data.plan.days.length > 0) {
+          const cityNameEn = data.plan.days[0].location_en;
+          const countryNameEn = data.plan.country_en;
+          // NAPRAWA: Pobranie nazwy miasta z planu, bo zmienna 'destination' tu nie istnieje
+          const destinationLabel = data.plan.days[0].location || cityNameEn;
+
+          injectGYGWidget(destinationLabel);
+
+          const localeId = getLocaleId(cityNameEn, countryNameEn);
+          injectTravelpayoutsWidget("travelpayouts-container", localeId);
+        }
+        addGenerateNewPlanButton();
+        createShareButton(planId);
+      }
+    } catch (err) {
+      console.error("Błąd ładowania planu:", err);
+      UI.elements.result.innerHTML = `<div class="text-red-400 p-10 text-center uppercase">Nie udało się wczytać planu.</div>`;
+    } finally {
+      UI.hideLoading();
+    }
   }
 }
 
 // --- FUNKCJA 3: Obsługa przycisku kopiowania linku ---
 function createShareButton(planId) {
   const shareUrl = `${window.location.origin}${window.location.pathname}?id=${planId}`;
-  const oldBtn = document.getElementById("share-plan-btn");
-  if (oldBtn) oldBtn.remove();
+  let shareBtn = document.getElementById("share-plan-btn");
 
-  const shareBtn = document.createElement("button");
-  shareBtn.id = "share-plan-btn";
+  if (!shareBtn) {
+    shareBtn = document.createElement("button");
+    shareBtn.id = "share-plan-btn";
+    shareBtn.className =
+      "fixed bottom-8 right-8 bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-full shadow-2xl transition-all transform hover:scale-105 z-50 flex items-center gap-2 font-bold";
+    document.body.appendChild(shareBtn);
+  }
+
   shareBtn.innerHTML = `<span>🔗 Kopiuj link do planu</span>`;
-  shareBtn.className =
-    "fixed bottom-8 right-8 bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-full shadow-2xl transition-all transform hover:scale-105 z-50 flex items-center gap-2 font-bold";
-
   shareBtn.onclick = () => {
     navigator.clipboard.writeText(shareUrl);
     shareBtn.innerText = "✅ Skopiowano!";
@@ -142,14 +142,11 @@ function createShareButton(planId) {
       shareBtn.innerHTML = `<span>🔗 Kopiuj link do planu</span>`;
     }, 2000);
   };
-
-  document.body.appendChild(shareBtn);
 }
 
 // --- OBSŁUGA FORMULARZA (SUBMIT) ---
 UI.elements.form.addEventListener("submit", async (e) => {
   e.preventDefault();
-
   const input = UI.elements.destinationInput;
 
   if (!isPlaceSelected) {
@@ -161,30 +158,38 @@ UI.elements.form.addEventListener("submit", async (e) => {
 
   const destination = input.value;
   const days = UI.elements.daysInput.value;
-
   UI.showLoading();
 
   try {
     const data = await fetchTripPlan(destination, days);
-    let finalHtml = UI.renderTimeline(data.plan);
 
+    // 1. Generujemy HTML
+    let finalHtml = UI.renderTimeline(data.plan);
     if (data.plan.travel_tips) {
       finalHtml += UI.renderTravelTips(data.plan.travel_tips);
     }
 
+    // 2. Wstawiamy HTML do DOM
     UI.elements.result.innerHTML = finalHtml;
 
-    if (data.plan && data.plan.days && data.plan.days.length > 0) {
-      const cityName = data.plan.days[0].location_en;
-      const countryName = data.plan.country_en;
+    // 3. KLUCZOWE: Dajemy przeglądarce milisekundę na "przetrawienie" DOM przed szukaniem kontenerów
+    setTimeout(() => {
+      if (data.plan && data.plan.days && data.plan.days.length > 0) {
+        // Atrakcje (używamy zmiennej destination z formularza)
+        injectGYGWidget(destination);
 
-      const localeId = getLocaleId(cityName, countryName);
-      injectTravelpayoutsWidget("travelpayouts-container", localeId);
-    }
+        // Hotele (Travelpayouts)
+        const cityName = data.plan.days[0].location_en;
+        const countryName = data.plan.country_en;
+        const localeId = getLocaleId(cityName, countryName);
+        injectTravelpayoutsWidget("travelpayouts-container", localeId);
+      }
 
-    // Dodajemy przycisk na samym dole
-    addGenerateNewPlanButton();
+      // Dodajemy przycisk na samym dole (musi być po wstawieniu widgetów)
+      addGenerateNewPlanButton();
+    }, 50);
 
+    // 4. Obsługa URL i przycisku udostępniania
     if (data.id) {
       const newUrl = `${window.location.origin}${window.location.pathname}?id=${data.id}`;
       window.history.pushState({ path: newUrl }, "", newUrl);
@@ -205,8 +210,6 @@ UI.elements.form.addEventListener("submit", async (e) => {
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof google !== "undefined") {
     initAutocomplete();
-  } else {
-    console.error("Błąd: Biblioteka Google Maps nie została załadowana.");
   }
   checkSharedPlan();
 });

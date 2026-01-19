@@ -20,35 +20,27 @@ export const UI = {
   showLoading() {
     const el = this.elements;
 
-    // Sprawdzenie czy wszystkie kluczowe elementy istnieją
     if (!el.modal || !el.progress) {
       console.error("Błąd: Nie znaleziono elementów modala w HTML.");
       return;
     }
 
-    // 1. NATYCHMIASTOWY RESET PASKA (bez animacji)
-    el.progress.style.transition = "none"; // Wyłącz płynne przejście
-    el.progress.style.width = "0%"; // Skocz do zera
-
-    // Wymuszenie przeliczenia stylów (tzw. reflow), aby przeglądarka "zauważyła" zero
+    el.progress.style.transition = "none";
+    el.progress.style.width = "0%";
     el.progress.offsetHeight;
 
-    // 2. PRZYWRÓCENIE ANIMACJI I WYŚWIETLENIE MODALA
     el.progress.style.transition = "width 10s ease-out";
 
-    // Losowanie ciekawostki
     if (el.fact && travelFacts && travelFacts.length > 0) {
       el.fact.textContent =
         travelFacts[Math.floor(Math.random() * travelFacts.length)];
     }
 
-    // Wyświetlanie modala (usuwamy klasę 'hidden' z Tailwinda i ustawiamy flex)
     el.modal.classList.remove("hidden");
     el.modal.style.display = "flex";
 
     if (el.submitBtn) el.submitBtn.disabled = true;
 
-    // Animacja paska
     el.progress.style.width = "0%";
     setTimeout(() => {
       el.progress.style.width = "85%";
@@ -78,7 +70,7 @@ export const UI = {
   renderTravelTips(tips) {
     if (!tips) return "";
 
-    return `
+    let html = `
     <div class="mt-12 mb-8">
       <h2 class="text-3xl font-black text-white text-center mb-10 uppercase tracking-tighter">
         Praktyczne informacje
@@ -136,6 +128,17 @@ export const UI = {
       </div>
     </div>
     `;
+
+    // DODANO TUTAJ: Widget noclegów na samym końcu praktycznych informacji
+    html += `
+    <section class="glass-card w-full mt-10 p-8 text-center">
+      <h3 class="text-white/70 text-sm uppercase tracking-widest mb-4">Rezerwuj, póki są dostępne</h3>
+      <h4 class="text-white/50 text-s mb-6">Najpopularniejsze atrakcje w tym mieście wyprzedają się z wyprzedzeniem. Zabezpiecz swój termin już teraz.</h4>
+      <div id="travelpayouts-container" class="w-full min-h-[200px]"></div>
+    </section>
+    `;
+
+    return html;
   },
 
   renderTimeline(planData) {
@@ -148,7 +151,6 @@ export const UI = {
         const sectionId = `day-${day.day_number}`;
         const isFirstDay = index === 0;
 
-        // Generujemy HTML dla danej sekcji dnia
         let daySectionHtml = `
       <section id="${sectionId}" 
                class="glass-card w-full mb-10 scroll-mt-10 animate-in fade-in slide-in-from-bottom-4 duration-500 text-left"
@@ -210,24 +212,24 @@ export const UI = {
       </section>
       `;
 
-        // KLUCZOWA ZMIANA: Po Dniu 1 dodajemy osobną sekcję z widgetem hoteli
+        // Atrakcje GYG zostają pod Dniem 1
         if (isFirstDay) {
           daySectionHtml += `
           <section class="glass-card w-full mb-10 p-8 text-center">
-            <h3 class="text-white/70 text-sm uppercase tracking-widest mb-4">Zobacz również</h3>
-            <div id="travelpayouts-container" class="w-full min-h-[200px]"></div>
+            <h3 class="text-white/70 text-sm uppercase tracking-widest mb-4">Polecane atrakcje</h3>
+            <h4 class="text-white/50 text-s mb-6">Zarezerwuj bilety online i nie trać ani minuty na stanie w kasach.</h4>
+            <div id="gyg-container" class="w-full min-h-[200px]"></div>
           </section>
-        `;
+          `;
         }
 
         return daySectionHtml;
       })
       .join("");
 
-    const shareButtonHtml = `
-    <div id="share-button-container" class="flex justify-center mt-4 mb-12 w-full"></div>
-  `;
-
-    return daysHtml + shareButtonHtml;
+    return (
+      daysHtml +
+      `<div id="share-button-container" class="flex justify-center mt-4 mb-12 w-full"></div>`
+    );
   },
 };
