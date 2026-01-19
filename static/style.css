@@ -113,7 +113,7 @@ input:focus {
   width: 0%;
   background: linear-gradient(90deg, var(--primary-green), var(--light-green));
   border-radius: 5px;
-  transition: width 10s ease-out;
+  transition: width 15s ease-out;
 }
 
 /* --- TYPOGRAFIA I WYNIKI --- */

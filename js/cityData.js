@@ -2,13 +2,21 @@
 const CARS_CITY_TO_LOCALE = {
   Warsaw: { city: "77681", country: "110" },
   Poland: { city: "77681", country: "110" }, // Fallback dla kraju
-  // Dodaj tutaj kolejne mapowania zgodnie z danymi z Travelpayouts
+  Tirana: { city: "70651", country: "128" },
+  Albania: { city: "70651", country: "128" },
+  Gyumri: { city: "404281", country: "126" },
+  Armenia: { city: "404281", country: "126" },
+  Baku: { city: "68511", country: "153" },
+  Azerbaijan: { city: "68511", country: "153" },
+  Sarajevo: { city: "70661", country: "141" },
+  "Bosnia and Herzegovina": { city: "70661", country: "141" },
+  Sofia: { city: "67661", country: "121" },
 };
 
 // Funkcja pobierająca dane dla samochodów
-export function getCarsLocale(cityName, countryName) {
-  const defaultLocale = { city: "77681", country: "110" }; // Warszawa domyślnie
+// js/cityData.js
 
+export function getCarsLocale(cityName, countryName) {
   if (cityName && CARS_CITY_TO_LOCALE[cityName])
     return CARS_CITY_TO_LOCALE[cityName];
 
@@ -20,23 +28,40 @@ export function getCarsLocale(cityName, countryName) {
   if (countryName && CARS_CITY_TO_LOCALE[countryName])
     return CARS_CITY_TO_LOCALE[countryName];
 
-  return defaultLocale;
+  // Zwracamy null zamiast Warszawy, jeśli nie znaleziono dopasowania
+  return null;
 }
 
-// Funkcja wstrzykująca widget samochodowy
 export function injectCarsWidget(containerId, localeData) {
   const container = document.getElementById(containerId);
+
+  // 1. Zabezpieczenie: Jeśli kontener nie istnieje LUB brak danych locale
   if (!container) return;
+
+  if (!localeData) {
+    // Opcjonalnie: Ukryj całą sekcję lub wyświetl komunikat "Brak ofert w tej lokalizacji"
+    container.innerHTML = `<div class="p-4 text-center text-white/40 italic">Opcja wynajmu aut niedostępna dla tej lokalizacji w tym momencie.</div>`;
+    return;
+  }
 
   container.innerHTML = "";
   const script = document.createElement("script");
   script.async = true;
   script.charset = "utf-8";
-  // Używamy parametrów z localeData
-  script.src = `//trpwdg.com/content?trs=488701&shmarker=633612&locale=pl&country=${localeData.country}&city=${localeData.city}&powered_by=true&campaign_id=87&promo_id=2466`;
+
+  // 2. POPRAWKA: Dodano 'https:' na początku adresu.
+  // Przeglądarki blokują skrypty ładowane przez '//' z lokalnych plików lub w specyficznych warunkach security.
+  script.src = `https://trpwdg.com/content?trs=488701&shmarker=633612&locale=pl&country=${localeData.country}&city=${localeData.city}&powered_by=true&campaign_id=87&promo_id=2466`;
+
+  // Obsługa błędów ładowania skryptu
+  script.onerror = () => {
+    container.innerHTML = `<div class="text-center text-white/30 text-sm">Nie udało się załadować ofert.</div>`;
+  };
 
   container.appendChild(script);
 }
+
+// ... (reszta pliku bez zmian)
 
 const CITY_TO_LOCALE = {
   Aarhus: "65338",

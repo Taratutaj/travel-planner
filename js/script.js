@@ -1,7 +1,47 @@
 import { UI } from "./ui.js";
 import { fetchTripPlan } from "./api.js";
-// DODANO: Import funkcji z cityData.js
-import { getLocaleId, injectTravelpayoutsWidget } from "./cityData.js";
+import {
+  getLocaleId,
+  injectTravelpayoutsWidget,
+  getCarsLocale,
+  injectCarsWidget,
+} from "./cityData.js";
+
+// --- FUNKCJA POMOCNICZA: Generuj nowy plan (Przycisk na dole) ---
+
+function addGenerateNewPlanButton() {
+  // Usuwamy stary przycisk jeśli istnieje
+  const oldBtnContainer = document.getElementById("reset-btn-container");
+  if (oldBtnContainer) oldBtnContainer.remove();
+
+  const btnContainer = document.createElement("div");
+  btnContainer.id = "reset-btn-container";
+  btnContainer.className = "w-full flex justify-center mt-12 mb-10 pb-10";
+  btnContainer.innerHTML = `
+    <button class="group relative px-8 py-4 bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl overflow-hidden transition-all duration-300 hover:bg-white/10 hover:border-green-400/30 hover:shadow-[0_0_20px_rgba(74,222,128,0.2)]">
+        <div class="flex items-center gap-3">
+            <span class="text-xl group-hover:scale-110 transition-transform duration-500">🔍</span>
+            <span class="text-white/80 font-medium tracking-wide group-hover:text-green-400 transition-colors">Zaplanuj kolejną podróż</span>
+        </div>
+    </button>
+  `;
+
+  btnContainer.querySelector("button").onclick = () => {
+    // Przewijamy na samą górę
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // Opcjonalnie: focus na input po przewinięciu
+    setTimeout(() => {
+      const input = document.getElementById("destination");
+      if (input) {
+        input.value = "";
+        input.focus();
+      }
+    }, 800);
+  };
+
+  UI.elements.result.appendChild(btnContainer);
+}
 
 // --- FUNKCJA 1: (Autocomplete Google Maps) ---
 
@@ -59,26 +99,37 @@ async function checkSharedPlan() {
       .then((res) => res.json())
       .then((data) => {
         if (data.plan) {
-          // 1. Renderujemy oś czasu
           let finalHtml = UI.renderTimeline(data.plan);
 
-          // 2. DODANO: Renderujemy sekcję porad, jeśli istnieje w zapisanym planie
           if (data.plan.travel_tips) {
             finalHtml += UI.renderTravelTips(data.plan.travel_tips);
           }
 
           UI.elements.result.innerHTML = finalHtml;
 
-          const carLocale = getCarsLocale(cityName, countryName);
-          injectCarsWidget("cars-widget-container", carLocale);
-
-          // 3. Obsługa widgetu Travelpayouts dla wczytanego planu
           if (data.plan.days && data.plan.days.length > 0) {
             const cityName = data.plan.days[0].location_en;
             const countryName = data.plan.country_en;
+
             const localeId = getLocaleId(cityName, countryName);
             injectTravelpayoutsWidget("travelpayouts-container", localeId);
+
+            const carLocale = getCarsLocale(cityName, countryName);
+            const carContainer = document.getElementById(
+              "cars-widget-container",
+            );
+
+            if (carContainer) {
+              if (carLocale) {
+                injectCarsWidget("cars-widget-container", carLocale);
+              } else {
+                const parentCard = carContainer.closest(".glass-card");
+                if (parentCard) parentCard.style.display = "none";
+              }
+            }
           }
+          // Dodajemy przycisk na dole
+          addGenerateNewPlanButton();
         }
       })
       .catch((err) => {
@@ -134,23 +185,28 @@ UI.elements.form.addEventListener("submit", async (e) => {
 
   try {
     const data = await fetchTripPlan(destination, days);
-    // Renderujemy oś czasu (dni)
     let finalHtml = UI.renderTimeline(data.plan);
 
-    // DODANO: Jeśli AI zwróciło travel_tips, doklejamy je pod planem dni
     if (data.plan.travel_tips) {
       finalHtml += UI.renderTravelTips(data.plan.travel_tips);
     }
 
     UI.elements.result.innerHTML = finalHtml;
 
-    // DODANO: Wyświetlanie widgetu po wygenerowaniu nowego planu
     if (data.plan && data.plan.days && data.plan.days.length > 0) {
       const cityName = data.plan.days[0].location_en;
-      const countryName = data.plan.country_en; // Gemini zwraca to teraz dzięki RESPONSE_SCHEMA
+      const countryName = data.plan.country_en;
+
       const localeId = getLocaleId(cityName, countryName);
       injectTravelpayoutsWidget("travelpayouts-container", localeId);
+
+      const carLocale = getCarsLocale(cityName, countryName);
+      injectCarsWidget("cars-widget-container", carLocale);
     }
+
+    // Dodajemy przycisk na samym dole
+    addGenerateNewPlanButton();
+
     if (data.id) {
       const newUrl = `${window.location.origin}${window.location.pathname}?id=${data.id}`;
       window.history.pushState({ path: newUrl }, "", newUrl);

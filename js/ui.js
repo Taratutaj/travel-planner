@@ -19,25 +19,37 @@ export const UI = {
 
   showLoading() {
     const el = this.elements;
+
+    // Sprawdzenie czy wszystkie kluczowe elementy istnieją
     if (!el.modal || !el.progress) {
       console.error("Błąd: Nie znaleziono elementów modala w HTML.");
       return;
     }
 
-    el.progress.style.transition = "none";
-    el.progress.style.width = "0%";
+    // 1. NATYCHMIASTOWY RESET PASKA (bez animacji)
+    el.progress.style.transition = "none"; // Wyłącz płynne przejście
+    el.progress.style.width = "0%"; // Skocz do zera
+
+    // Wymuszenie przeliczenia stylów (tzw. reflow), aby przeglądarka "zauważyła" zero
     el.progress.offsetHeight;
+
+    // 2. PRZYWRÓCENIE ANIMACJI I WYŚWIETLENIE MODALA
     el.progress.style.transition = "width 10s ease-out";
 
+    // Losowanie ciekawostki
     if (el.fact && travelFacts && travelFacts.length > 0) {
       el.fact.textContent =
         travelFacts[Math.floor(Math.random() * travelFacts.length)];
     }
 
+    // Wyświetlanie modala (usuwamy klasę 'hidden' z Tailwinda i ustawiamy flex)
     el.modal.classList.remove("hidden");
     el.modal.style.display = "flex";
+
     if (el.submitBtn) el.submitBtn.disabled = true;
 
+    // Animacja paska
+    el.progress.style.width = "0%";
     setTimeout(() => {
       el.progress.style.width = "85%";
     }, 50);
@@ -53,7 +65,9 @@ export const UI = {
   hideLoading() {
     const el = this.elements;
     if (!el.modal) return;
+
     el.progress.style.width = "100%";
+
     setTimeout(() => {
       el.modal.style.display = "none";
       el.modal.classList.add("hidden");
@@ -61,47 +75,67 @@ export const UI = {
     }, 500);
   },
 
-  // POPRAWIONA FUNKCJA renderTravelTips
   renderTravelTips(tips) {
-    // Warunek if MUSI być wewnątrz klamerek { }
-    if (!tips) {
-      return `<div class="text-center text-white/30 py-10">Brak dodatkowych informacji turystycznych.</div>`;
-    }
+    if (!tips) return "";
 
-    let html = `
-    <div class="space-y-8 mt-12">
-      <h2 class="text-3xl font-bold text-center text-white mb-8 text-shadow">Praktyczne Informacje</h2>
+    return `
+    <div class="mt-12 mb-8">
+      <h2 class="text-3xl font-black text-white text-center mb-10 uppercase tracking-tighter">
+        Praktyczne informacje
+      </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="glass-card p-6">
-          <h3 class="text-green-400 font-bold mb-3 flex items-center gap-2">
-            <i class="fas fa-passport"></i> Przed wyjazdem
+        <div class="glass-card p-6 border-l-4 border-green-500">
+          <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">
+            <i class="fas fa-passport"></i> Zanim wyruszysz
           </h3>
-          <p class="text-white/80 text-sm leading-relaxed">${tips.before_you_go || "Brak danych"}</p>
+          <div class="space-y-4 text-gray-200 text-sm leading-relaxed">
+            <p><strong>Wiza i dokumenty:</strong> ${tips.before_you_go.visa_docs}</p>
+            <p><strong>Zdrowie:</strong> ${tips.before_you_go.health}</p>
+            <p><strong>Co zabrać:</strong> ${tips.before_you_go.essentials}</p>
+          </div>
         </div>
-        
-        <div class="glass-card p-6">
-          <h3 class="text-green-400 font-bold mb-3 flex items-center gap-2">
+
+        <div class="glass-card p-6 border-l-4 border-blue-500">
+          <h3 class="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
             <i class="fas fa-bus"></i> Transport
           </h3>
-          <p class="text-white/80 text-sm leading-relaxed">${tips.transport?.local_transport || "Brak danych"}</p>
+          <div class="space-y-4 text-gray-200 text-sm leading-relaxed">
+            <p><strong>Z lotniska:</strong> ${tips.transport.airport_transfer}</p>
+            <p><strong>Lokalnie:</strong> ${tips.transport.local_transport}</p>
+            <p><strong>Wynajem:</strong> ${tips.transport.rental_info}</p>
+          </div>
         </div>
 
-        <div class="glass-card p-6">
-          <h3 class="text-green-400 font-bold mb-3 flex items-center gap-2">
+        <div class="glass-card p-6 border-l-4 border-yellow-500">
+          <h3 class="text-xl font-bold text-yellow-400 mb-4 flex items-center gap-2">
             <i class="fas fa-wallet"></i> Finanse
           </h3>
-          <p class="text-white/80 text-sm leading-relaxed">${tips.finances?.currency_payments || "Brak danych"}</p>
+          <div class="space-y-3 text-gray-200 text-sm leading-relaxed">
+            <p><strong>Płatności:</strong> ${tips.finances.currency_payments}</p>
+            <div class="bg-white/5 p-3 rounded-lg">
+              <span class="text-[10px] uppercase font-bold text-yellow-500 block mb-1">Przykładowe ceny:</span>
+              <ul class="list-disc ml-4 text-xs space-y-1">
+                ${tips.finances.example_prices.map((price) => `<li>${price}</li>`).join("")}
+              </ul>
+            </div>
+            <p><strong>Napiwki:</strong> ${tips.finances.tipping_culture}</p>
+          </div>
         </div>
 
-        <div class="glass-card p-6">
-          <h3 class="text-green-400 font-bold mb-3 flex items-center gap-2">
-            <i class="fas fa-shield-alt"></i> Bezpieczeństwo
+        <div class="glass-card p-6 border-l-4 border-red-500">
+          <h3 class="text-xl font-bold text-red-400 mb-4 flex items-center gap-2">
+            <i class="fas fa-shield-alt"></i> Kultura i Bezpieczeństwo
           </h3>
-          <p class="text-white/80 text-sm leading-relaxed">${tips.culture_safety?.safety_scams || "Brak danych"}</p>
+          <div class="space-y-4 text-gray-200 text-sm leading-relaxed">
+            <p><strong>Zwroty:</strong> <span class="italic text-white font-medium">${tips.culture_safety.phrases}</span></p>
+            <p><strong>Etykieta:</strong> ${tips.culture_safety.etiquette}</p>
+            <p><strong>Bezpieczeństwo:</strong> ${tips.culture_safety.safety_scams}</p>
+          </div>
         </div>
       </div>
 
+      <!-- NOWA SEKCJA: Widget samochodów -->
       <div class="glass-card p-8 mt-10 w-full border border-white/10 shadow-2xl relative overflow-hidden">
         <div class="relative z-10">
           <div class="flex items-center justify-between mb-6">
@@ -126,7 +160,6 @@ export const UI = {
       </div>
     </div>
     `;
-    return html;
   },
 
   renderTimeline(planData) {
@@ -139,6 +172,7 @@ export const UI = {
         const sectionId = `day-${day.day_number}`;
         const isFirstDay = index === 0;
 
+        // Generujemy HTML dla danej sekcji dnia
         let daySectionHtml = `
       <section id="${sectionId}" 
                class="glass-card w-full mb-10 scroll-mt-10 animate-in fade-in slide-in-from-bottom-4 duration-500 text-left"
@@ -200,6 +234,7 @@ export const UI = {
       </section>
       `;
 
+        // KLUCZOWA ZMIANA: Po Dniu 1 dodajemy osobną sekcję z widgetem hoteli
         if (isFirstDay) {
           daySectionHtml += `
           <section class="glass-card w-full mb-10 p-8 text-center">
@@ -208,13 +243,15 @@ export const UI = {
           </section>
         `;
         }
+
         return daySectionHtml;
       })
       .join("");
 
-    return (
-      daysHtml +
-      `<div id="share-button-container" class="flex justify-center mt-4 mb-12 w-full"></div>`
-    );
+    const shareButtonHtml = `
+    <div id="share-button-container" class="flex justify-center mt-4 mb-12 w-full"></div>
+  `;
+
+    return daysHtml + shareButtonHtml;
   },
 };
