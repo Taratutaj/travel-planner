@@ -69,9 +69,21 @@ function initAutocomplete() {
 
   autocomplete.addListener("place_changed", () => {
     const place = autocomplete.getPlace();
+    // Sprawdzamy czy miejsce ma geometrię (czyli czy jest poprawne)
     isPlaceSelected = !!(place && place.geometry);
     if (isPlaceSelected)
       input.classList.remove("border-red-500", "ring-2", "ring-red-500");
+  });
+
+  // DODAJEMY TO: Obsługa klawisza Enter, aby nie wysyłał formularza przedwcześnie
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && document.querySelector(".pac-item-selected")) {
+      // Jeśli użytkownik nawiguje strzałkami po liście, pozwól Google Maps to obsłużyć
+      return;
+    }
+    if (e.key === "Enter") {
+      e.preventDefault(); // Zapobiegamy wysyłce, póki nie spróbujemy auto-selectu
+    }
   });
 
   input.addEventListener("input", () => {
@@ -149,10 +161,46 @@ UI.elements.form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const input = UI.elements.destinationInput;
 
+  // --- LOGIKA AUTO-SELECT ---
+  if (!isPlaceSelected && input.value.trim() !== "") {
+    // Symulujemy naciśnięcie strzałki w dół i Entera, aby Google wybrało pierwszą opcję
+    // lub sprawdzamy czy usługa Autocomplete ma coś w buforze.
+
+    const googleService = new google.maps.places.AutocompleteService();
+    const predictions = await new Promise((resolve) => {
+      googleService.getPlacePredictions(
+        { input: input.value, types: ["(regions)"] },
+        resolve,
+      );
+    });
+
+    if (predictions && predictions.length > 0) {
+      // Mamy podpowiedzi! Pobieramy szczegóły pierwszej z nich
+      const placesService = new google.maps.places.PlacesService(
+        document.createElement("div"),
+      );
+
+      await new Promise((resolve) => {
+        placesService.getDetails(
+          { placeId: predictions[0].place_id },
+          (place, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+              input.value = place.formatted_address;
+              isPlaceSelected = true;
+              // Opcjonalnie: wywołaj zdarzenie place_changed ręcznie lub kontynuuj
+              resolve();
+            }
+          },
+        );
+      });
+    }
+  }
+
+  // Finalna walidacja po próbie auto-selectu
   if (!isPlaceSelected) {
     input.focus();
     input.classList.add("border-red-500", "ring-2", "ring-red-500");
-    alert("Proszę wybrać miejsce z listy podpowiedzi.");
+    alert("Proszę wpisać nazwę miejsca i wybrać jedną z podpowiedzi.");
     return;
   }
 
