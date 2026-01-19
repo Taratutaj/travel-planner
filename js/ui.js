@@ -132,8 +132,8 @@ export const UI = {
     // DODANO TUTAJ: Widget noclegów na samym końcu praktycznych informacji
     html += `
     <section class="glass-card w-full mt-10 p-8 text-center">
-      <h3 class="text-white/70 text-sm uppercase tracking-widest mb-4">Rezerwuj, póki są dostępne</h3>
-      <h4 class="text-white/50 text-s mb-6">Najpopularniejsze atrakcje w tym mieście wyprzedają się z wyprzedzeniem. Zabezpiecz swój termin już teraz.</h4>
+      <h3 class="font-bold text-white text-sm uppercase tracking-widest mb-4">Rezerwuj, póki są dostępne</h3>
+      <h4 class="text-white text-s mb-6">Najpopularniejsze atrakcje w tym mieście wyprzedają się z wyprzedzeniem. Zabezpiecz swój termin już teraz.</h4>
       <div id="travelpayouts-container" class="w-full min-h-[200px]"></div>
     </section>
     `;
@@ -216,8 +216,8 @@ export const UI = {
         if (isFirstDay) {
           daySectionHtml += `
           <section class="glass-card w-full mb-10 p-8 text-center">
-            <h3 class="text-white/70 text-sm uppercase tracking-widest mb-4">Polecane atrakcje</h3>
-            <h4 class="text-white/50 text-s mb-6">Zarezerwuj bilety online i nie trać ani minuty na stanie w kasach.</h4>
+            <h3 class="font-bold text-white text-sm uppercase tracking-widest mb-4">Polecane atrakcje</h3>
+            <h4 class="text-white text-s mb-6">Zarezerwuj bilety online i nie trać ani minuty na stanie w kasach.</h4>
             <div id="gyg-container" class="w-full min-h-[200px]"></div>
           </section>
           `;
