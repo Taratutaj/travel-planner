@@ -87,7 +87,7 @@ def generate_trip_plan(destination, days):
     )
 
     config = types.GenerateContentConfig(
-        tools=[{"google_search": {}}],
+        #tools=[{"google_search": {}}],
         response_mime_type="application/json",
         response_schema=RESPONSE_SCHEMA,
         system_instruction="""
