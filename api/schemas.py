@@ -13,6 +13,8 @@ RESPONSE_SCHEMA = {
                     "location_en": {"type": "STRING"},
                     "activities": {
                         "type": "ARRAY",
+                        "minItems": 3,
+                        "maxItems": 3,
                         "items": {
                             "type": "OBJECT",
                             "properties": {
