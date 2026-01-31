@@ -173,7 +173,7 @@ export default function PlanForm({
               data-lpignore="true"
               required
               disabled={isLoading}
-              className="w-full bg-white/30 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400/50 transition-all shadow-inner disabled:opacity-50"
+              className="w-full bg-white/50 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400/50 transition-all shadow-inner disabled:opacity-50"
             />
           </div>
 
@@ -193,7 +193,7 @@ export default function PlanForm({
               max="3"
               required
               disabled={isLoading}
-              className="w-full bg-white/30 border border-white/20 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-green-400/50 shadow-inner disabled:opacity-50"
+              className="w-full bg-white/50 border border-white/20 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-green-400/50 shadow-inner disabled:opacity-50"
             />
           </div>
         </div>
