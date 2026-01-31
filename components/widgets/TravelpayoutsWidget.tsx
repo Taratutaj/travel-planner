@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-export default function GYGWidget({ destination }) {
+export default function GYGWidget({ destination }: { destination: string }) {
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://widget.getyourguide.com/dist/pa.umd.production.min.js';
