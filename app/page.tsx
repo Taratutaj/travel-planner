@@ -205,7 +205,7 @@ export default function Home() {
 
         <header className="flex justify-between items-center text-white py-6 border-b border-white/10 mb-8">
           <p className="text-xl md:text-2xl font-extrabold tracking-tight">
-            Co zobaczyć w...
+            Co zobaczyć w....
           </p>
         </header>
 
