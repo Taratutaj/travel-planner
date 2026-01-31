@@ -113,7 +113,7 @@ export async function generateTripPlan(destination: string, days: number) {
     contents: [{ role: "user", parts: [{ text: userPrompt }] }],
     generationConfig: {
       responseMimeType: "application/json",
-      responseSchema: RESPONSE_SCHEMA,
+      responseSchema: RESPONSE_SCHEMA as any,
     },
     systemInstruction: SYSTEM_INSTRUCTION,
   });

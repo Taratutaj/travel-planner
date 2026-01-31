@@ -1,4 +1,4 @@
-import { SchemaType } from "@google/generative-ai";
+import { Schema, SchemaType } from "@google/generative-ai";
 
 export const RESPONSE_SCHEMA = {
   type: SchemaType.OBJECT,
