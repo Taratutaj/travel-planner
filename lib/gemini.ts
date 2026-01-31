@@ -1,5 +1,5 @@
 // lib/gemini.ts
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import {
   RESPONSE_SCHEMA,
   SYSTEM_INSTRUCTION,
