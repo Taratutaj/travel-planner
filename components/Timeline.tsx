@@ -84,7 +84,7 @@ export default function Timeline({ plan }: TimelineProps) {
                       <div
                         className="italic-markdown"
                         dangerouslySetInnerHTML={{
-                          __html: marked.parseSync(act.description) as string,
+                          __html: marked(act.description) as unknown as string,
                         }}
                       />
                       {act.maps_url && (
