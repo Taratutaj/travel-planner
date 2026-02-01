@@ -232,7 +232,11 @@ export default function Home() {
           {planData && (
             <>
               <Timeline plan={planData.plan} />
-              <TravelTips tips={planData.plan.travel_tips} />
+              <TravelTips
+                tips={planData.plan.travel_tips}
+                cityName={planData.plan.days[0]?.location_en}
+                countryName={planData.plan.country_en}
+              />
 
               {/* Przyciski udostępniania i PDF */}
               <div className="flex justify-center gap-4 mt-8">
