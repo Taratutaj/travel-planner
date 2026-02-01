@@ -106,7 +106,7 @@ UNSPLASH:
 - location_en musi być konkretne (np. 'Bari Old Town Streets' zamiast 'Bari').
 
 Oprócz planu dnia, w sekcji 'travel_tips' MUSISZ zawrzeć informacje po POLSKU (każda sekcja 400-500 znaków):
-1. before_you_go: Info o wizach dla Polaków, zdrowiu i co zabrać.
+1. before_you_go: Info o wizach dla Polaków i wymogach dotyczących wjazdu, poradź żeby zawsze sprawdzać najnowsze informacje na stronie gov.pl, zdrowiu i co zabrać.
 2. transport: Transfer z lotniska, transport lokalny, wynajem auta.
 3. finances: Waluta, ceny w lokalnej walucie i PLN, napiwki.
 4. culture_safety: Zwroty, etykieta, bezpieczeństwo i numery alarmowe.

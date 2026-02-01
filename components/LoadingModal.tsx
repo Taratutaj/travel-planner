@@ -1,7 +1,7 @@
 // components/LoadingModal.tsx
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 const travelFacts = [
   "Ciekawostka: Najkrótszy lot na świecie trwa tylko 2 minuty – między szkockimi wyspami Westray i Papa Westray.",
@@ -28,20 +28,24 @@ interface LoadingModalProps {
 
 export default function LoadingModal({ isOpen }: LoadingModalProps) {
   const [progress, setProgress] = useState(0);
-  const [fact, setFact] = useState('');
+  const [fact, setFact] = useState("");
+  const [key, setKey] = useState(0);
 
   useEffect(() => {
     if (isOpen) {
-      // Reset progress
+      // Zwiększ key żeby wymusić re-render paska (resetuje animację CSS)
+      setKey((prev) => prev + 1);
+
+      // Reset progress do 0
       setProgress(0);
-      
-      // Random fact
+
+      // Losuj nowy fakt
       setFact(travelFacts[Math.floor(Math.random() * travelFacts.length)]);
-      
-      // Animate progress
+
+      // Start animacji po małym opóźnieniu (żeby CSS się zresetowało)
       const timer = setTimeout(() => {
         setProgress(85);
-      }, 100);
+      }, 50);
 
       return () => clearTimeout(timer);
     }
@@ -62,6 +66,7 @@ export default function LoadingModal({ isOpen }: LoadingModalProps) {
 
         <div className="progress-bar w-full h-2.5 bg-white/20 rounded-full overflow-hidden mb-6">
           <div
+            key={key}
             className="h-full bg-gradient-to-r from-green-500 to-green-300 transition-all duration-[10000ms] ease-out"
             style={{ width: `${progress}%` }}
           />
