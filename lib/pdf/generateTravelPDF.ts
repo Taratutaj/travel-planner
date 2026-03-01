@@ -31,7 +31,9 @@ export async function generateTravelPDF(planData: PlanResponse) {
 
     // 4. Save final PDF
     const finalPdfBytes = await finalPdf.save();
-    const finalBlob = new Blob([finalPdfBytes], { type: "application/pdf" });
+    const finalBlob = new Blob([finalPdfBytes.buffer as ArrayBuffer], {
+      type: "application/pdf",
+    });
 
     // Download file
     const url = URL.createObjectURL(finalBlob);
