@@ -7,6 +7,7 @@ import Timeline from "@/components/Timeline";
 import TravelTips from "@/components/TravelTips";
 import LoadingModal from "@/components/LoadingModal";
 import { PlanResponse } from "@/lib/types";
+import { generateTravelPDF } from "@/lib/pdf/generateTravelPDF";
 
 export default function Home() {
   const [planData, setPlanData] = useState<PlanResponse | null>(null);
@@ -95,105 +96,8 @@ export default function Home() {
     if (!planData) return;
 
     try {
-      // Dynamically import html2pdf
-      const html2pdf = (await import("html2pdf.js")).default;
-
-      // Stwórz element HTML do konwersji
-      const element = document.createElement("div");
-      element.style.padding = "40px";
-      element.style.fontFamily = "Inter, sans-serif";
-      element.style.color = "#000";
-      element.style.backgroundColor = "#fff";
-
-      // Dodaj zawartość - tutaj możesz edytować layout!
-      element.innerHTML = `
-        <div style="text-align: center; margin-bottom: 40px;">
-          <h1 style="font-size: 32px; font-weight: bold; color: #2e7d32; margin-bottom: 10px;">
-            ${planData.plan.itinerary_title || "Plan Podróży"}
-          </h1>
-          <p style="font-size: 14px; color: #666;">
-            Wygenerowano: ${new Date().toLocaleDateString("pl-PL")}
-          </p>
-        </div>
-        
-        ${planData.plan.days
-          .map(
-            (day) => `
-          <div style="margin-bottom: 30px; page-break-inside: avoid;">
-            <div style="background: linear-gradient(to right, #4ade80, #22c55e); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-              <h2 style="color: white; font-size: 24px; margin: 0;">
-                Dzień ${day.day_number}: ${day.location}
-              </h2>
-            </div>
-            
-            ${day.activities
-              .map(
-                (activity) => `
-              <div style="margin-bottom: 20px; margin-left: 20px; border-left: 3px solid #4ade80; padding-left: 15px;">
-                <div style="margin-bottom: 8px;">
-                  <span style="background: #f0fdf4; color: #16a34a; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
-                    ${activity.period}
-                  </span>
-                  <span style="color: #666; font-size: 13px; margin-left: 10px;">
-                    ${activity.time_range}
-                  </span>
-                </div>
-                <p style="font-size: 14px; line-height: 1.6; color: #333; margin: 0;">
-                  ${activity.description
-                    .replace(/\*\*/g, "<strong>")
-                    .replace(/\*/g, "<em>")
-                    .replace(/<\/strong><em>/g, "</strong> <em>")
-                    .replace(/<\/em><strong>/g, "</em> <strong>")}
-                </p>
-              </div>
-            `,
-              )
-              .join("")}
-          </div>
-        `,
-          )
-          .join("")}
-        
-        ${
-          planData.plan.travel_tips
-            ? `
-          <div style="margin-top: 40px; page-break-before: always;">
-            <h2 style="font-size: 24px; font-weight: bold; color: #2e7d32; margin-bottom: 20px; text-align: center;">
-              Praktyczne Informacje
-            </h2>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-              <div style="border: 2px solid #4ade80; border-radius: 10px; padding: 15px;">
-                <h3 style="color: #16a34a; font-size: 16px; margin-bottom: 10px;">🛂 Zanim wyruszysz</h3>
-                <p style="font-size: 12px; line-height: 1.5;"><strong>Wiza:</strong> ${planData.plan.travel_tips.before_you_go.visa_docs}</p>
-                <p style="font-size: 12px; line-height: 1.5;"><strong>Zdrowie:</strong> ${planData.plan.travel_tips.before_you_go.health}</p>
-              </div>
-              
-              <div style="border: 2px solid #4ade80; border-radius: 10px; padding: 15px;">
-                <h3 style="color: #16a34a; font-size: 16px; margin-bottom: 10px;">🚌 Transport</h3>
-                <p style="font-size: 12px; line-height: 1.5;"><strong>Z lotniska:</strong> ${planData.plan.travel_tips.transport.airport_transfer}</p>
-                <p style="font-size: 12px; line-height: 1.5;"><strong>Lokalnie:</strong> ${planData.plan.travel_tips.transport.local_transport}</p>
-              </div>
-            </div>
-          </div>
-        `
-            : ""
-        }
-      `;
-
-      // Konfiguracja PDF
-      const opt = {
-        margin: 15,
-        filename: `plan-podrozy-${planData.plan.days[0].location.replace(/[^a-z0-9]/gi, "-").toLowerCase()}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      } as const;
-
-      // Generuj PDF
-      await html2pdf().set(opt).from(element).save();
+      await generateTravelPDF(planData);
     } catch (error) {
-      console.error("Błąd podczas generowania PDF:", error);
       alert("Nie udało się wygenerować PDF. Spróbuj ponownie.");
     }
   };
