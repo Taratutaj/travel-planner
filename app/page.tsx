@@ -9,6 +9,13 @@ import LoadingModal from "@/components/LoadingModal";
 import { PlanResponse } from "@/lib/types";
 import { generateTravelPDF } from "@/lib/pdf/generateTravelPDF";
 
+// Helper do wysyłania eventów do GA4
+const trackEvent = (eventName: string, params?: Record<string, any>) => {
+  if (typeof window !== "undefined" && (window as any).gtag) {
+    (window as any).gtag("event", eventName, params);
+  }
+};
+
 export default function Home() {
   const [planData, setPlanData] = useState<PlanResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +39,8 @@ export default function Home() {
 
       if (data) {
         setPlanData(data);
+        // Śledzenie otwarcia udostępnionego planu
+        trackEvent("shared_plan_opened", { plan_id: planId });
       } else {
         setError("Nie znaleziono planu");
       }
@@ -48,6 +57,12 @@ export default function Home() {
     setError(null);
     setPlanData(null);
 
+    // Śledzenie kliknięcia "Generuj"
+    trackEvent("generate_plan_clicked", {
+      destination: destination,
+      days: days,
+    });
+
     try {
       const response = await fetch("/api/generate-plan", {
         method: "POST",
@@ -62,6 +77,12 @@ export default function Home() {
 
       const data: PlanResponse = await response.json();
       setPlanData(data);
+
+      // Śledzenie pomyślnego wygenerowania planu
+      trackEvent("plan_generated", {
+        destination: destination,
+        days: days,
+      });
 
       // Aktualizuj URL jeśli mamy ID
       if (data.id) {
@@ -79,6 +100,13 @@ export default function Home() {
     } catch (err: any) {
       console.error("Błąd podczas generowania planu:", err);
       setError(err.message || "Wystąpił błąd");
+
+      // Śledzenie błędu generowania
+      trackEvent("plan_generation_error", {
+        destination: destination,
+        days: days,
+        error: err.message,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -88,12 +116,21 @@ export default function Home() {
     if (planData?.id) {
       const shareUrl = `${window.location.origin}${window.location.pathname}?id=${planData.id}`;
       navigator.clipboard.writeText(shareUrl);
+
+      // Śledzenie kopiowania linku
+      trackEvent("plan_shared", { plan_id: planData.id });
+
       alert("✅ Link skopiowany do schowka!");
     }
   };
 
   const handleDownloadPDF = async () => {
     if (!planData) return;
+
+    // Śledzenie pobrania PDF
+    trackEvent("pdf_downloaded", {
+      destination: planData.plan.days[0]?.location_en,
+    });
 
     try {
       await generateTravelPDF(planData);
