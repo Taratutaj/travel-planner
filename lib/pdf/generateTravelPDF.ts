@@ -192,7 +192,7 @@ function createDayPageElement(day: any): HTMLDivElement {
         font-weight: 300;
         color: #ffffff;
         letter-spacing: 3px;
-      ">COZOBACZYC.vercel.com</span>
+      ">COZOBACZYC.vercel.app</span>
     </div>
   `;
 
