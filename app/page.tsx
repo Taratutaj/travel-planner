@@ -8,6 +8,7 @@ import TravelTips from "@/components/TravelTips";
 import LoadingModal from "@/components/LoadingModal";
 import { PlanResponse } from "@/lib/types";
 import { generateTravelPDF } from "@/lib/pdf/generateTravelPDF";
+import PremiumSection from "@/components/PremiumSection";
 
 // Helper do wysyłania eventów do GA4
 const trackEvent = (eventName: string, params?: Record<string, any>) => {
@@ -152,6 +153,11 @@ export default function Home() {
 
         <div className="mb-12">
           <PlanForm onSubmit={handleSubmit} isLoading={isLoading} />
+          <PremiumSection
+            onActivate={() =>
+              alert("🌍 Niedługo ruszamy! Premium będzie dostępne wkrótce.")
+            }
+          />
         </div>
 
         <section id="result" className="w-full mt-8 space-y-8">
